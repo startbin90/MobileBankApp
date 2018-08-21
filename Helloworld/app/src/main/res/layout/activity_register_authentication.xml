@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/registerAuth_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".registerAuthentication"
+    android:orientation="vertical"
+    android:gravity="center"
+    >
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/nin_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:counterEnabled="true"
+        app:counterMaxLength="18"
+        app:errorEnabled="true"
+        app:errorTextAppearance="@style/ErrorText">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/nin_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="18"
+            android:hint="@string/national_identity_number"
+            android:inputType="number"
+            android:maxLength="18"
+            />
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/account_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:counterEnabled="true"
+        app:counterMaxLength="8"
+        app:errorEnabled="true"
+        app:errorTextAppearance="@style/ErrorText">
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/account_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/account_number"
+            android:inputType="number"
+            android:maxLength="8"
+            android:layout_gravity="start"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/withdrawals_password_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:counterEnabled="true"
+            app:counterMaxLength="6"
+            app:errorEnabled="true"
+            app:errorTextAppearance="@style/ErrorText"
+            android:layout_weight="6">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/withdrawals_password_field"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/withdrawals_password"
+                android:inputType="numberPassword"
+                android:maxLength="6"
+                android:layout_gravity="start"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
+            android:id="@+id/validate"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:text="@string/validate"
+            android:layout_weight="2"/>
+    </LinearLayout>
+
+</LinearLayout>
