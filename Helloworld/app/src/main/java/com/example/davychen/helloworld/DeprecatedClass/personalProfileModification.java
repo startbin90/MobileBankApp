@@ -1,7 +1,8 @@
-package com.example.davychen.helloworld.services;
+package com.example.davychen.helloworld.DeprecatedClass;
 
 import com.example.davychen.helloworld.fragments.personalProfileFragment;
 import com.example.davychen.helloworld.myIO;
+import com.example.davychen.helloworld.services.errDecode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

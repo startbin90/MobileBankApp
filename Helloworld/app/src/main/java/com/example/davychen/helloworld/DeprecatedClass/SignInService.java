@@ -1,4 +1,4 @@
-package com.example.davychen.helloworld.services;
+package com.example.davychen.helloworld.DeprecatedClass;
 
 import android.app.Activity;
 import android.widget.EditText;
@@ -7,6 +7,7 @@ import android.widget.RadioGroup;
 
 import com.example.davychen.helloworld.R;
 import com.example.davychen.helloworld.myIO;
+import com.example.davychen.helloworld.services.errDecode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
