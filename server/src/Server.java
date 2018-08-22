@@ -11,7 +11,12 @@ import java.util.concurrent.Executors;
 /**
  * Server class creates the Server object, connects to database
  * and push to ExecutorService to be executed.
- * run method tries to accept connections from clients 
+ * run method tries to accept connections from clients and
+ * starts a new ServerSocketWorker Runnable and push it to
+ * ExecutorService to be executed
+ *
+ * Server initializes a newCachedThreadPool to execute itself
+ * and all ServerSocketWorker Runnable
  */
 public class Server implements Runnable{
     private int port;
@@ -52,6 +57,10 @@ public class Server implements Runnable{
         }
     }
 
+    /**
+     * worker Runnable which processes request from client
+     * It is executed in the thread managed by executorService
+     */
     public class ServerSocketWorker implements Runnable{
         Socket socket;
         private String ip;
@@ -67,7 +76,6 @@ public class Server implements Runnable{
             Date dateobj = new Date();
             System.out.println("---" + Thread.currentThread().getName() + "---"
                     + "New connection from IP: " + ip +" at " + df.format(dateobj));
-
             myIO.toClient(socket);
 
         }

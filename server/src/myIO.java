@@ -11,16 +11,16 @@ public class myIO {
     static private int bufSize = 1024;
     static int SERVER_ERROR = -1;
     static int SUCCESS = 0;
-    static int Failed = 1;
+    static int FAILED = 1;
     static int WRONG_ACCOUNT_PASSWORD_COMBO = 2;
     static int INVALID_EMAIL_ADDRESS = 3;
     static int ACCOUNT_NOT_LINKED = 4;
     static int NOT_STRONG_PASSWORD = 5;
-    static int SHORT_PASSWORD = 6;
+    static int TRANSACTION_FAILED= 6;
     static int CONNECTION_FAILED = 7;
-    static int SPOT0 = 8;
+    static int ACCOUNT_NOT_FOUND = 8;
     static int NIN_NOT_REGISTER = 9;
-    static int WRONG_PASSWORD = 10;
+    static int WRONG_TRANSACTION_PASSWORD = 10;
     static int MOBILEREG_INSERTION_ERROR = 11;
     static int PAYEE_INFO_NOT_MATCHING = 12;
     static int INVALID_TRANSACTION_AMOUNT = 13;
@@ -32,6 +32,7 @@ public class myIO {
     static int CELL_TAKEN = 19;
     static int SERVER_TIMEOUT = 20;
     static int SPECIFIED_ACCOUNT_NOT_FOUND = 21;
+    static int TRANSACTION_DETAIL_INSERTION_ERROR = 22;
 
     /**
      * convert int to byte[]

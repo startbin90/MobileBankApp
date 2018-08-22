@@ -1,33 +1,57 @@
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+/**
+ * returnMessage class is used by dbServer class and serverService class
+ * to pass result more efficiently
+ *
+ */
 public class returnMessage {
+    /**
+     * ret represents the result code of the operation
+     * message represents the extra data the operation generates
+     */
     private int ret;
     private byte[] message;
 
-    public returnMessage(int ret) {
+    /**
+     * constructor with one param, set message to null
+     * @param ret result code
+     */
+    returnMessage(int ret) {
         this.ret = ret;
         this.message = null;
     }
 
-    public returnMessage(int ret, byte[] message) {
+    /**
+     * constructor with one param
+     * @param ret result code
+     * @param message extra data
+     */
+    returnMessage(int ret, byte[] message) {
         this.ret = ret;
         this.message = message;
     }
 
-    public int getRet() {
+    /**
+     * getter and setter for two attributes
+     */
+    int getRet() {
         return ret;
     }
 
-    public void setMessage(byte[] message) {
+    void setMessage(byte[] message) {
         this.message = message;
     }
 
-    public byte[] getMessage() {
+    byte[] getMessage() {
         return message;
     }
 
-    public byte[] toBytesArray(){
+    /**
+     * convert two attributes to bytes and concatenate them inside one array and returned
+     */
+    byte[] toBytesArray(){
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             out.write(myIO.intToBytes(this.ret));
@@ -36,11 +60,14 @@ public class returnMessage {
             }
             return out.toByteArray();
         } catch (IOException e) {
-            return myIO.intToBytes(-1);// -1 stands for server error
+            return myIO.intToBytes(myIO.SERVER_ERROR);
         }
     }
 
-    public void abandonMsgPart(){
+    /**
+     * abandon message by setting message attribute to null
+     */
+    void abandonMsgPart(){
         this.message = null;
     }
 

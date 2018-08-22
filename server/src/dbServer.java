@@ -1,3 +1,5 @@
+import sun.util.resources.ms.CalendarData_ms_MY;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -5,10 +7,18 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * dbServer is responsible for any interaction with background database
+ * including connecting to the database, making insertion and modification operations
+ */
 public class dbServer {
 
     private Connection connection;
+    /**
+     * the amount of transaction detail data to be send to client once
+     */
     private int TRANS_DETAIL_AMOUNT = 10;
+
     dbServer() {
         try {
             Class.forName("org.postgresql.Driver");
@@ -17,12 +27,15 @@ public class dbServer {
         }
     }
 
+    /**
+     * connect to database and set search path
+     */
     boolean connectDB(String url, String username, String password) {
-        //write your code here.
         try {
             connection = DriverManager.getConnection(
                     url,
                     username, password);
+            // set search_path
             PreparedStatement path = connection.prepareStatement("set search_path to accountschema;");
             path.execute();
         } catch (SQLException e) {
@@ -42,6 +55,9 @@ public class dbServer {
         return true;
     }
 
+    /**
+     * register the given info into mobileReg table
+     */
     returnMessage register(String email, String nickname, int sex, String nin, String cell, String addr,
             String pwd, String transpwd){
         try {
@@ -65,18 +81,22 @@ public class dbServer {
             add.setTimestamp(9, ts);
             add.setString(10, "true");
             if (add.executeUpdate() == 1){
-                return new returnMessage(0);
+                return new returnMessage(myIO.SUCCESS);
             }else{
-                return new returnMessage(11); //mobilereg table insertion error
+                return new returnMessage(myIO.MOBILEREG_INSERTION_ERROR); //mobilereg table insertion error
             }
 
         }catch (SQLException e) {
             e.printStackTrace();
-            return new returnMessage(-1);
+            return new returnMessage(myIO.SERVER_ERROR);
         }
 
     }
 
+    /**
+     * client login
+     * check password
+     */
     returnMessage logIn(int loginOption, String loginAccount, String pwd){
         try {
 
@@ -91,12 +111,12 @@ public class dbServer {
                     String actualPwd = ret.getString(1);
                     String id = ret.getString(2);
                     if (Objects.equals(actualPwd, pwd)){
-                        return new returnMessage(0, myIO.toBytes(id, 18));// login successful
+                        return new returnMessage(myIO.SUCCESS, myIO.toBytes(id, 18));// login successful
                     }else {
-                        return  new returnMessage(2); // wrong password but account exist
+                        return  new returnMessage(myIO.WRONG_ACCOUNT_PASSWORD_COMBO); // wrong password but account exist
                     }
                 }else{
-                    return new returnMessage(2);// account not exist
+                    return new returnMessage(myIO.WRONG_ACCOUNT_PASSWORD_COMBO);// account not exist
                 }
             }else {
                 // account number login option
@@ -114,30 +134,33 @@ public class dbServer {
                     ResultSet ret1 = statement.executeQuery();
                     if (ret1.next()){
                         if (Objects.equals(ret1.getString(1), pwd)){
-                            return new returnMessage(0, myIO.toBytes(id, 18));// login successful
+                            return new returnMessage(myIO.SUCCESS, myIO.toBytes(id, 18));// login successful
                         }else {
-                            return  new returnMessage(2); // wrong password but account exist
+                            return  new returnMessage(myIO.WRONG_ACCOUNT_PASSWORD_COMBO); // wrong password but account exist
                         }
 
                     }else {
                         //id in linkedaccounts but not in mobilereg, which can't happen since linkedaccounts.id
                         //references mobilereg.id. Every id has to be in mobilereg table before added to linkedaccounts.
-                        return new returnMessage(-1);
+                        return new returnMessage(myIO.SERVER_ERROR);
                     }
 
                 }else{
-                    return new returnMessage(4);// account not bind
+                    return new returnMessage(myIO.ACCOUNT_NOT_LINKED);// account not bind
                 }
 
             }
 
         }catch (SQLException e) {
             e.printStackTrace();
-            return new returnMessage(-1); // wrong password but account exist// error
+            return new returnMessage(myIO.SERVER_ERROR); // wrong password but account exist// error
         }
     }
 
-    returnMessage retreive(String id){
+    /**
+     * retrieve client personal info and accounts list
+     */
+    returnMessage retrieve(String id){
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try{
             PreparedStatement retrive = connection.prepareStatement(
@@ -183,30 +206,33 @@ public class dbServer {
                     out.write(bytes);
                 }
 
-                return new returnMessage(0, out.toByteArray());
+                return new returnMessage(myIO.SUCCESS, out.toByteArray());
 
             }else {
-                return new returnMessage(-1); //mobile bank user not exists
+                return new returnMessage(myIO.SERVER_ERROR); //mobile bank user not exists
             }
         } catch (SQLException | IOException e) {
             e.printStackTrace();
-            return new returnMessage(-1);// error
+            return new returnMessage(myIO.SERVER_ERROR);// error
         }
     }
 
-    returnMessage transDetailRetrive(String account_num, long start, long end){
+    /**
+     * retrieve transaction details from start to end of account_num account
+     */
+    returnMessage transDetailRetrieve(String account_num, long start, long end){
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try{
-            PreparedStatement retrive = connection.prepareStatement(
+            PreparedStatement retrieve = connection.prepareStatement(
                     "select * from transaction where trans_from = ? and trans_date >= ? and trans_date <= ? order by trans_date DESC;");
 
-            retrive.setString(1, account_num);
+            retrieve.setString(1, account_num);
             Timestamp start_Ts = new java.sql.Timestamp(start);
             Timestamp end_Ts = new java.sql.Timestamp(end);
             System.out.println("start: " + start_Ts.toString() + ", end: " + end_Ts.toString());
-            retrive.setTimestamp(2, start_Ts);
-            retrive.setTimestamp(3, end_Ts);
-            ResultSet ret = retrive.executeQuery();
+            retrieve.setTimestamp(2, start_Ts);
+            retrieve.setTimestamp(3, end_Ts);
+            ResultSet ret = retrieve.executeQuery();
 
             ArrayList<byte[]> arr = new ArrayList<>();
             int count = 0;
@@ -249,11 +275,14 @@ public class dbServer {
             return retMsg;
 
         } catch (SQLException | IOException e) {
-            return new returnMessage(-1); // error
+            return new returnMessage(myIO.SERVER_ERROR); // error
         }
     }
 
-    returnMessage getRecipients(String email){
+    /**
+     * retrieve payees of client specified by email
+     */
+    returnMessage retrievePayees(String email){
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try{
             PreparedStatement retrive = connection.prepareStatement(
@@ -273,7 +302,7 @@ public class dbServer {
                 arr.add(myIO.toBytes(ret.getString(4), 10));
                 count++;
             }
-            returnMessage retMsg = new returnMessage(0);//success
+            returnMessage retMsg = new returnMessage(myIO.SUCCESS);//success
             out.write(myIO.intToBytes(count));//total counts of recipients
             for (byte[] bytes: arr){
                 out.write(bytes);
@@ -281,16 +310,18 @@ public class dbServer {
             retMsg.setMessage(out.toByteArray());
             return retMsg;
         } catch (SQLException | IOException e) {
-            return new returnMessage(-1);// error
+            return new returnMessage(myIO.SERVER_ERROR);// error
         }
     }
 
+    /**
+     * modify payee
+     */
     int modifyPayees(byte[] msg){
         try{
-
             String email = myIO.bytesToString(msg, 0, 50);
             char operationType = (char)msg[50];
-            if (operationType == 1){//add
+            if (operationType == 1){// add a new payee
                 String new_account = myIO.bytesToString(msg, 51, 8);
                 String first_name = myIO.bytesToString(msg, 59, 10);
                 String last_name = myIO.bytesToString(msg, 69, 10);
@@ -303,7 +334,7 @@ public class dbServer {
                 update.setString(4,last_name);
 
                 return update.executeUpdate();
-            }else if (operationType == 2){ //delete
+            }else if (operationType == 2){ //delete an existing payee
                 String old_account = myIO.bytesToString(msg, 51, 8);
                 PreparedStatement update = connection.prepareStatement(
                         "delete from recipients where email = ? and account = ?;");
@@ -312,7 +343,7 @@ public class dbServer {
                 update.setString(2,old_account);
 
                 return update.executeUpdate();
-            }else { // modify
+            }else { // modify an existing payee
                 String old_account = myIO.bytesToString(msg, 51, 8);
                 String new_account = myIO.bytesToString(msg, 59, 8);
                 String first_name = myIO.bytesToString(msg, 67, 10);
@@ -333,7 +364,14 @@ public class dbServer {
         }
     }
 
-
+    /**
+     * transaction service
+     * check transaction password of from account,
+     * if success, check payee info matching or not
+     * if success, check transaction amount
+     * if success, execute transaction, modify balances of two sides
+     * if success, generate transaction detail
+     */
     int transaction(String from, String payee, String first_name, String last_name,float value, String trans_pwd, String memo){
         int ret = transPwdChecker(from, trans_pwd);
         if ( ret == 0){
@@ -362,10 +400,14 @@ public class dbServer {
         }
     }
 
+    /**
+     * One transaction generates two transaction details.
+     * one transaction detail has its transaction direction as Borrow '+'
+     * another transaction detail has its transaction direction as Loan '-'
+     * flip from account and payee account
+     */
     private int transactionDetailGenerator(String from, String payee, String last_name, float value, String memo){
         try {
-            PreparedStatement path = connection.prepareStatement("set search_path to accountschema;");
-            path.execute();
             PreparedStatement insert_from = connection.prepareStatement(
                     "insert into transaction values (default, ?,?,?,?,'-',?,?,'1',?); ");
 
@@ -384,11 +426,11 @@ public class dbServer {
                     float post_balance = ret.getFloat(1);
                     insert_from.setFloat(6,post_balance);
                 }else{
-                    return 11; //account not existing
+                    return myIO.ACCOUNT_NOT_FOUND; //account not existing
                 }
 
             insert_from.setString(7, memo);
-            int frmo_ret = insert_from.executeUpdate();
+            int from_ret = insert_from.executeUpdate();
 
             PreparedStatement insert_payee = connection.prepareStatement(
                     "insert into transaction values (default, ?,?,?,?,'+',?,?,'1',?); ");
@@ -404,7 +446,7 @@ public class dbServer {
                     String from_last_name = find_from_last_name_ret.getString(1);
                     insert_payee.setString(4, from_last_name);
                 }else{
-                    return 11; //account not existing
+                    return myIO.ACCOUNT_NOT_FOUND; //account not existing
                 }
             insert_payee.setFloat(5, value);
 
@@ -416,23 +458,28 @@ public class dbServer {
                 float post_balance = find_payee_post_balance_ret.getFloat(1);
                 insert_payee.setFloat(6,post_balance);
             }else{
-                return 11; //account not existing
+                return myIO.ACCOUNT_NOT_FOUND; //account not existing
             }
 
             insert_payee.setString(7, memo);
             int payee_ret = insert_payee.executeUpdate();
-            if (frmo_ret == 1 && payee_ret == 1){
-                return 0;//success
+            if (from_ret == 1 && payee_ret == 1){
+                return myIO.SUCCESS;//success
             }else{
-                return 14; //transaction detail insertion error
+                return myIO.TRANSACTION_DETAIL_INSERTION_ERROR; //transaction detail insertion error
             }
 
         }catch (SQLException e) {
             e.printStackTrace();
-            return -1;
+            return myIO.SERVER_ERROR;
         }
     }
 
+    /**
+     * check if transaction amount value is valid
+     * valid transaction amount is equal or smaller than balance of the account
+     * which starts the transaction and is a number greater than 0.
+     */
     private int amountChecker(String from, float value){
         try {
             PreparedStatement find_from = connection.prepareStatement(
@@ -444,24 +491,28 @@ public class dbServer {
             if (from_ret.next()){
                 float balance = from_ret.getFloat(1);
                 if (value > balance || value <= 0){
-                    return 13; //not enough balance or invalid transaction amount
+                    return myIO.INVALID_TRANSACTION_AMOUNT; //not enough balance or invalid transaction amount
                 }else{
-                    return 0;
+                    return myIO.SUCCESS;
                 }
             }else{
-                return 11; //either or both account not found account not existing
+                return myIO.ACCOUNT_NOT_FOUND; //either or both account not found account not existing
             }
 
         }catch (SQLException e) {
             e.printStackTrace();
-            return -1;
+            return myIO.SERVER_ERROR;
         }
     }
 
+    /**
+     * execute transaction
+     * subtract or add transaction amount on respective side of transaction
+     * TODO: 1. can be improved by setting the related row to be modified by one user
+     * TODO: 2. onFailedRollBack
+     */
     private int executeTransaction(String from, String payee,float value){
         try {
-            PreparedStatement path = connection.prepareStatement("set search_path to accountschema;");
-            path.execute();
             PreparedStatement exe_from = connection.prepareStatement(
                     "update accounts set balance = balance - ? where account = ?");
 
@@ -477,18 +528,21 @@ public class dbServer {
             int payee_ret = exe_payee.executeUpdate();
 
             if (from_ret == 1 && payee_ret == 1){
-                return 0; // success
+                return myIO.SUCCESS; // success
             }else{
-                return 13; //execute Transaction error
+                return myIO.TRANSACTION_FAILED; //execute Transaction error
             }
 
         }catch (SQLException e) {
             e.printStackTrace();
-            return -1;
+            return myIO.SERVER_ERROR;
         }
 
     }
 
+    /**
+     * check payee account first and last name
+     */
     private int payeeChecker(String payee, String first_name, String last_name){
         try {
             PreparedStatement find_account = connection.prepareStatement(
@@ -501,24 +555,25 @@ public class dbServer {
                 String first = ret.getString(2);
                 String last = ret.getString(3);
                 if (!Objects.equals(first, first_name) || !Objects.equals(last, last_name)){
-                    return 12; // payee info not matching
+                    return myIO.PAYEE_INFO_NOT_MATCHING; // payee info not matching
                 }else{
-                    return 0;
+                    return myIO.SUCCESS;
                 }
             }else{
-                return 11; //account not found account not existing
+                return myIO.ACCOUNT_NOT_FOUND; //account not found account not existing
             }
 
         }catch (SQLException e) {
             e.printStackTrace();
-            return -1;
+            return myIO.SERVER_ERROR;
         }
     }
 
+    /**
+     * validate transaction account transaction password
+     */
     private int transPwdChecker(String from, String trans_pwd){
         try {
-            PreparedStatement path = connection.prepareStatement("set search_path to accountschema;");
-            path.execute();
             PreparedStatement find_nin = connection.prepareStatement(
                     "select * from linkedaccounts where account = ?");
 
@@ -532,24 +587,27 @@ public class dbServer {
                 ResultSet ret1 = find_transpwd.executeQuery();
                 if (ret1.next()){
                     if (Objects.equals(trans_pwd, ret1.getString(1))){
-                        return 0;
+                        return myIO.SUCCESS;
                     }else{
-                        return 10;//wrong transaction pwd
+                        return myIO.WRONG_TRANSACTION_PASSWORD;//wrong transaction pwd
                     }
 
                 }else{
-                    return 9; //nin has not register online bank which is impossible
+                    return myIO.NIN_NOT_REGISTER; //nin has not register online bank which is impossible
                 }
             }else{
-                return 8; //account not linked yet
+                return myIO.ACCOUNT_NOT_LINKED; //account not linked yet
             }
 
         }catch (SQLException e) {
-            return -1;
+            return myIO.SERVER_ERROR;
         }
 
     }
 
+    /**
+     * validate account withdrawal password and client NIN
+     */
     returnMessage accountAddition(String account, String withdrawals_password, String nin){
         try {
             PreparedStatement find_nin = connection.prepareStatement(
@@ -569,7 +627,7 @@ public class dbServer {
                 }
                 if (!linked.isEmpty()){
                     // account already linked to some nin registration
-                    return new returnMessage(14);
+                    return new returnMessage(myIO.PROVIDED_ACCOUNT_LINKED);
                 }else{
                     returnMessage retMsg = registerAuth(nin, account, withdrawals_password);
                     int retCode = retMsg.getRet();
@@ -580,29 +638,30 @@ public class dbServer {
                         add_account.setString(2, nin);
                         int insert_ret = add_account.executeUpdate();
                         if (insert_ret == 1){
-                            return new returnMessage(0);//success
+                            return new returnMessage(myIO.SUCCESS);//success
                         }else{
-                            return new returnMessage(17); //linked account insertion error
+                            return new returnMessage(myIO.LINKEDACCOUNTS_INSERTION_ERROR); //linked account insertion error
                         }
                     }
                     return retMsg;
                 }
             }else{
                 //nin is not registered online bank
-                return new returnMessage(9);
+                return new returnMessage(myIO.NIN_NOT_REGISTER);
             }
 
         }catch (SQLException e) {
-            return new returnMessage(-1);
+            return new returnMessage(myIO.SERVER_ERROR);
         }
     }
 
+    /**
+     * modify client personal info
+     */
     int personalProfileModification(String email, String cell, String addr, String nin){
         try {
             int err = uniquenessCheck(email, cell, nin);
             if (err == 0) {
-                PreparedStatement path = connection.prepareStatement("set search_path to accountschema;");
-                path.execute();
                 PreparedStatement update = connection.prepareStatement(
                         "update mobilereg set email = ?, cell = ?, address = ? where id = ?;");
 
@@ -612,25 +671,27 @@ public class dbServer {
                 update.setString(4, nin);
                 int ret = update.executeUpdate();
                 if (ret == 1) {
-                    return 0; //success
+                    return myIO.SUCCESS; //success
                 } else {
-                    return 1; // failed
+                    return myIO.FAILED; // failed
                 }
             }else if (err == 1){
-                return 18; // email been taken
+                return myIO.EMAIL_TAKEN; // email been taken
             }else{
-                return 19; //err = 2 cell been taken
+                return myIO.CELL_TAKEN; //err = 2 cell been taken
             }
 
         }catch (SQLException e) {
-            return -1;
+            return myIO.SERVER_ERROR;
         }
     }
 
+    /**
+     * helper method for personalProfileModification
+     * check the uniqueness of email and cell the user wants to be updated
+     */
     private int uniquenessCheck(String email, String cell, String nin){
         try {
-            PreparedStatement path = connection.prepareStatement("set search_path to accountschema;");
-            path.execute();
             PreparedStatement check_email = connection.prepareStatement(
                     "select * from mobilereg where id != ? and email = ?;");
 
@@ -652,14 +713,16 @@ public class dbServer {
             return 0; //email and cell ok;
 
         }catch (SQLException e) {
-            return -1;
+            return myIO.SERVER_ERROR;
         }
     }
 
+    /**
+     * reset the login password of the client specified by NIN
+     * CALL login before resetting in order to validate identity
+     */
     int passwordReset(String nin, String pwd, String new_pwd){
         try {
-            PreparedStatement path = connection.prepareStatement("set search_path to accountschema;");
-            path.execute();
             PreparedStatement find_email = connection.prepareStatement(
                     "select email from mobilereg where id = ?;");
 
@@ -676,22 +739,26 @@ public class dbServer {
                     update.setString(2, nin);
                     int result = update.executeUpdate();
                     if (result == 1){
-                        return 0; //success
+                        return myIO.SUCCESS; //success
                     }else{
-                        return 1; //update failed
+                        return myIO.FAILED; //update failed
                     }
                 }else{
                     return ret.getRet();
                 }
             }else{
-                return 1;
+                return myIO.FAILED;
             }
 
         }catch (SQLException e) {
-            return -1;
+            return myIO.SERVER_ERROR;
         }
     }
 
+    /**
+     * transaction password reset
+     * validate old transaction password before resetting
+     */
     int transPasswordReset(String nin, String pwd, String new_pwd){
         try {
             PreparedStatement find_transpwd = connection.prepareStatement(
@@ -707,23 +774,26 @@ public class dbServer {
                     update_transpwd.setString(2, nin);
                     int ret = update_transpwd.executeUpdate();
                     if (ret == 1){
-                        return 0; //success
+                        return myIO.SUCCESS; //success
                     }else{
-                        return 1;//update failed
+                        return myIO.FAILED;//update failed
                     }
 
                 }else{
-                    return 10;//wrong transaction pwd
+                    return myIO.WRONG_TRANSACTION_PASSWORD;//wrong transaction pwd
                 }
 
             }else{
-                return 9; //nin has not register online bank which is impossible
+                return myIO.NIN_NOT_REGISTER; //nin has not register online bank which is impossible
             }
         }catch (SQLException e) {
-            return -1;
+            return myIO.SERVER_ERROR;
         }
     }
 
+    /**
+     * validate account
+     */
     returnMessage registerAuth(String nin, String account, String withdrawal){
         try {
             PreparedStatement find_nin = connection.prepareStatement(
@@ -738,19 +808,19 @@ public class dbServer {
                 linked.setString(2, account);
                 ResultSet ret2 = linked.executeQuery();
                 if (ret2.next()){
-                    return new returnMessage(14); // account has been linked
+                    return new returnMessage(myIO.PROVIDED_ACCOUNT_LINKED); // account has been linked
                 }
                 if (!Objects.equals(withdrawal, ret1.getString(1))){
-                    return new returnMessage(15); // wrong withdrawal password
+                    return new returnMessage(myIO.WRONG_WITHDRAWAL_PASSWORD); // wrong withdrawal password
                 }else{
-                    return new returnMessage(0);  // success
+                    return new returnMessage(myIO.SUCCESS);  // success
                 }
 
             }else{
-                return new returnMessage(21);  //registerAuthentication does not find the account specified by nin and account number.
+                return new returnMessage(myIO.SPECIFIED_ACCOUNT_NOT_FOUND);  //registerAuthentication does not find the account specified by nin and account number.
             }
         }catch (SQLException e) {
-            return new returnMessage(-1);
+            return new returnMessage(myIO.SERVER_ERROR);
         }
     }
 
