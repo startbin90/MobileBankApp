@@ -15,7 +15,7 @@ import android.view.Window;
 import android.widget.Button;
 
 import com.example.davychen.helloworld.R;
-import com.example.davychen.helloworld.account;
+import com.example.davychen.helloworld.Activity.account;
 import com.example.davychen.helloworld.adapters.payeeItemAdapter;
 import com.example.davychen.helloworld.items.payee_item;
 import com.example.davychen.helloworld.services.getRecipients;

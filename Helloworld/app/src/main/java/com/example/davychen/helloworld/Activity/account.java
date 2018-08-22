@@ -1,4 +1,4 @@
-package com.example.davychen.helloworld;
+package com.example.davychen.helloworld.Activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.davychen.helloworld.R;
 import com.example.davychen.helloworld.adapters.accountItemAdapter;
 import com.example.davychen.helloworld.fragments.accountAdditionFragment;
 import com.example.davychen.helloworld.fragments.accounts_list;
@@ -29,6 +30,7 @@ import com.example.davychen.helloworld.fragments.personalProfileFragment;
 import com.example.davychen.helloworld.fragments.settingFragment;
 import com.example.davychen.helloworld.fragments.transfer;
 import com.example.davychen.helloworld.items.account_item;
+import com.example.davychen.helloworld.myIO;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

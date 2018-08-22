@@ -15,9 +15,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.davychen.helloworld.R;
-import com.example.davychen.helloworld.account;
+import com.example.davychen.helloworld.Activity.account;
 import com.example.davychen.helloworld.myIO;
 import com.example.davychen.helloworld.services.personalProfileModification;
+
+import java.lang.ref.WeakReference;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -115,6 +117,7 @@ public class personalProfileFragment extends Fragment {
 
 }
 class profileModificationAsyncTask extends AsyncTask<Void, Void , Void> {
+    private WeakReference<personalProfileFragment> wrap;
     personalProfileModification run;
 
     profileModificationAsyncTask(personalProfileModification run){

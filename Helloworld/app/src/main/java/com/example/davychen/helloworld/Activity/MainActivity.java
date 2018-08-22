@@ -1,4 +1,4 @@
-package com.example.davychen.helloworld;
+package com.example.davychen.helloworld.Activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,11 +15,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.davychen.helloworld.R;
+import com.example.davychen.helloworld.localHelper;
+import com.example.davychen.helloworld.myIO;
 import com.example.davychen.helloworld.services.LogInService;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static String ip = "192.168.0.102";
+    public static String ip = "192.168.0.106";
     public Button logIn;
     static String TAG = "main_activity";
 

@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class myIO {
+    /**
+     * constants for result code
+     * INSERTION_ERROR usually don't happen.
+     */
     static private int bufSize = 1024;
     static int SERVER_ERROR = -1;
     static int SUCCESS = 0;
@@ -16,21 +20,24 @@ public class myIO {
     static int INVALID_EMAIL_ADDRESS = 3;
     static int ACCOUNT_NOT_LINKED = 4;
     static int NOT_STRONG_PASSWORD = 5;
+    //transaction balance update failed
     static int TRANSACTION_FAILED= 6;
     static int CONNECTION_FAILED = 7;
     static int ACCOUNT_NOT_FOUND = 8;
+    //person with this NIN has not open mobile banking service
     static int NIN_NOT_REGISTER = 9;
     static int WRONG_TRANSACTION_PASSWORD = 10;
-    static int MOBILEREG_INSERTION_ERROR = 11;
+    static int INSERTION_ERROR_MOBILEREG = 11;
     static int PAYEE_INFO_NOT_MATCHING = 12;
     static int INVALID_TRANSACTION_AMOUNT = 13;
-    static int PROVIDED_ACCOUNT_LINKED = 14;
+    static int ACCOUNT_LINKED = 14;
     static int WRONG_WITHDRAWAL_PASSWORD = 15;
     static int ACCOUNT_ADDITION_NAME_NOT_MATCH = 16;
-    static int LINKEDACCOUNTS_INSERTION_ERROR = 17;
+    static int INSERTION_ERROR_LINKEDACCOUNTS = 17;
     static int EMAIL_TAKEN = 18;
     static int CELL_TAKEN = 19;
     static int SERVER_TIMEOUT = 20;
+    // wrong nin and account number combination
     static int SPECIFIED_ACCOUNT_NOT_FOUND = 21;
     static int TRANSACTION_DETAIL_INSERTION_ERROR = 22;
 

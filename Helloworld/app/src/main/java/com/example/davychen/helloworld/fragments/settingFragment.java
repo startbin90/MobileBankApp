@@ -12,9 +12,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.davychen.helloworld.R;
-import com.example.davychen.helloworld.account;
-import com.example.davychen.helloworld.password_reset;
-import com.example.davychen.helloworld.trans_password_reset;
+import com.example.davychen.helloworld.Activity.account;
+import com.example.davychen.helloworld.Activity.password_reset;
+import com.example.davychen.helloworld.Activity.trans_password_reset;
 
 /**
  * A simple {@link Fragment} subclass.

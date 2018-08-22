@@ -125,20 +125,25 @@ class serverService{
         String nick = new String(divided.get(4)).trim();
         int sex = divided.get(5)[0];
         String cell = new String(divided.get(6)).trim();
-        String addr = new String(divided.get(7)).trim();
+        String address = new String(divided.get(7)).trim();
         String pwd = new String(divided.get(8)).trim();
-        String transpwd = new String(divided.get(9)).trim();
+        String trans_pwd = new String(divided.get(9)).trim();
+        int err;
+        // check account owner identity
         returnMessage ret = registerAuth(myIO.bytesArrayDivider(msg, 18 + 8 + 6).get(0));
-        if (ret.getRet() == 0){
-            returnMessage retMsg = Server.db.register(email, nick, sex, nin, cell, addr, pwd, transpwd);
-            if (retMsg.getRet() == 0){
-                return Server.db.accountAddition(account, withdraw, nin);
-            }else{
-                return retMsg;
+        err = ret.getRet();
+        if (err == 0) {
+            // check email, cell, nin uniqueness
+            err = Server.db.uniquenessCheck(email, cell, nin);
+            if (err == 0) {
+                returnMessage retMsg = Server.db.register(email, nick, sex, nin, cell, address, pwd, trans_pwd);
+                err = retMsg.getRet();
+                if (err == 0) {
+                    return Server.db.accountAddition(account, withdraw, nin);
+                }
             }
-        }else{
-            return ret;
         }
+        return new returnMessage(err);
     }
 
     /**

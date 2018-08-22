@@ -15,7 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.davychen.helloworld.R;
-import com.example.davychen.helloworld.account;
+import com.example.davychen.helloworld.Activity.account;
 import com.example.davychen.helloworld.adapters.accountItemAdapter;
 import com.example.davychen.helloworld.items.account_item;
 import com.example.davychen.helloworld.services.retrieveAccountInfo;

@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".Activity.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,16 +21,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SignInActivity" />
+        <activity android:name=".Activity.SignInActivity" />
         <activity
-            android:name=".account"
+            android:name=".Activity.account"
             android:label="@string/title_activity_account"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".account_detail" />
-        <activity android:name=".transactionConfirmationPage" />
-        <activity android:name=".password_reset" />
-        <activity android:name=".trans_password_reset" />
-        <activity android:name=".registerAuthentication"></activity>
+        <activity android:name=".Activity.account_detail" />
+        <activity android:name=".Activity.transactionConfirmationPage" />
+        <activity android:name=".Activity.password_reset" />
+        <activity android:name=".Activity.trans_password_reset" />
+        <activity android:name=".Activity.registerAuthentication"></activity>
     </application>
 
 </manifest>

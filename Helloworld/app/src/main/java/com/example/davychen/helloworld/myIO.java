@@ -3,6 +3,8 @@ package com.example.davychen.helloworld;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.example.davychen.helloworld.Activity.MainActivity;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

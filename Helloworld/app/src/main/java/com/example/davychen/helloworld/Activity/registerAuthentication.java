@@ -1,4 +1,4 @@
-package com.example.davychen.helloworld;
+package com.example.davychen.helloworld.Activity;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -11,6 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import com.example.davychen.helloworld.R;
+import com.example.davychen.helloworld.myIO;
 import com.example.davychen.helloworld.services.GeneralRequestService;
 import com.example.davychen.helloworld.services.errDecode;
 

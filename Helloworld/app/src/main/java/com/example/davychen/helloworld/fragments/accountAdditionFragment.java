@@ -16,7 +16,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.example.davychen.helloworld.R;
-import com.example.davychen.helloworld.account;
+import com.example.davychen.helloworld.Activity.account;
 import com.example.davychen.helloworld.myIO;
 import com.example.davychen.helloworld.services.accountAdditionService;
 

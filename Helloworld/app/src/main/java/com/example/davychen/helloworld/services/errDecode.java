@@ -37,25 +37,25 @@ public class errDecode implements Runnable {
                 toast = "Invalid Email address";
                 break;
             case 4:
-                toast = "Account number not linked yet";
+                toast = "Account number not linked";
                 break;
             case 5:
                 toast = "password not strong";
                 break;
             case 6:
-                toast = "password should be at least 8 characters";
+                toast = "Transaction failed";
                 break;
             case 7:
-                toast = "connect failed";
+                toast = "Connect failed";
                 break;
             case 8:
-                toast = "account not linked yet";
+                toast = "Account not found";
                 break;
             case 9:
-                toast = "This nin has not been registered";
+                toast = "NIN has not been registered";
                 break;
             case 10:
-                toast = "Wrong Password";
+                toast = "Wrong Transaction Password";
                 break;
             case 11:
                 toast = "mobilereg insertion error";

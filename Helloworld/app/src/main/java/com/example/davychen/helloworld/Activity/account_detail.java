@@ -1,4 +1,4 @@
-package com.example.davychen.helloworld;
+package com.example.davychen.helloworld.Activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.example.davychen.helloworld.R;
 import com.example.davychen.helloworld.adapters.transDetailItemAdapter;
 import com.example.davychen.helloworld.items.transaction_detail_item;
 import com.example.davychen.helloworld.services.transDetailService;

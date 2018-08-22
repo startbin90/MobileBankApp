@@ -4,7 +4,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.example.davychen.helloworld.MainActivity;
+import com.example.davychen.helloworld.Activity.MainActivity;
 import com.example.davychen.helloworld.R;
 import com.example.davychen.helloworld.myIO;
 

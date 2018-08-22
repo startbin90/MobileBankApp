@@ -1,20 +1,52 @@
+
+-- This file descripts a simulated banking service for moible users. The clients of the bank(people who 
+-- own the bank accounts of the bank) can download the Android APP on which clients is able to check bank
+-- accounts balance, make transactions and etc. 
+
+-- Clients should provide NIN (National Identity Number in China, it can also be passport number or 
+-- social security number in other countries as long as it can identify a person), one of their 
+-- bank accounts and correct withdrawal password for that account to validate its identity. Then the 
+-- client should provide some personal info to register. The registration info is stored in table mobilereg.
+-- The account the client provided in registration is automatically linked to this mobile banking registration
+-- by inserting the account to table linkedaccounts. The client can choose to link more accounts to mobile banking.
+
+-- Clients can log in mobile banking service using the registered email address or either one of account number
+-- which has been linked.
+
 drop schema if exists accountschema cascade;
 create schema accountschema;
 set search_path to accountschema;
 
 create type sex_type as ENUM('Male', 'Female');
+
+-- This table documents basic information of the client
 create table person(
 	id char(18) primary key,
 	firstname varchar(10) not null,
 	lastname varchar(10) not null
 );
+
+-- This table actually should exist in another database system. This table can only be read but not modified by 
+-- Server in charge of mobile banking services.
+--     'id': id is the number which identifies everyone. It is also called National Identity Number
+--         in China. Everyone has his/her own unique NIN. the user should be responsible to provide their 
+--         real NIN.
+-- 		'withdrawpwd': The password used to do transaction in ATM or in bank counters. Also used to link 
+--         accounts to mobile banking service.
+create table accounts(
+	account char(8) primary key,
+	id char(18) references person(id) on update cascade,
+	balance real not null,
+	withdrawpwd char(6) not null
+); 
+
 -- mobilereg table documents the registration of mobile banking service.
--- If an existing customer of the bank wants to use mobile banking service, he has to 
---     register as a mobile banking user and provide infomation as listed below. Meanwhile,
---     he has to set up mobile bank access Password and Transaction Password for doing 
---     transaction on mobile devices.
+-- It is the main table of mobile banking background database.
+-- Every existing client of the bank has to register in this table to become a mobile banking service user, 
+-- and provide infomation as listed below. Meanwhile, he has to set up mobile bank access Password and 
+-- Transaction Password for doing transaction on mobile devices.
 --     'email': the user has to provide an emial to register and is able to use email to log in
---     'name': the user's name. The name the user would like to be called in the Mobile Banking APP
+--     'name': the user's nickname. The name the user would like to be called in the Mobile Banking APP
 --     'id': id is the number which identifies everyone. It is also called National Identity Number
 --         in China. Everyone has his/her own unique NIN. the user should be responsible to provide their 
 --         real NIN.
@@ -41,21 +73,6 @@ create table mobilereg(
 	
 );
 
--- accounts table pre-exists in the bank's system.
---     'id': id is the number which identifies everyone. It is also called National Identity Number
---         in China. Everyone has his/her own unique NIN. the user should be responsible to provide their 
---         real NIN.
--- 		'withdrawpwd': The password used to do transaction in ATM or in bank counters. Also used to link 
---         accounts to mobile banking service.
-create table accounts(
-	account char(8) primary key,
-	id char(18) references person(id) on update cascade,
-	balance real not null,
-	withdrawpwd char(6) not null
-); 
-
-
-
 -- accounts linked to mobile banking will be documented in this table.
 -- accounts can only be linked to mobile banking registration with the same id
 -- and lastname and firstname.
@@ -64,6 +81,8 @@ create table accounts(
 -- the person represented by id must has already opened mobile banking service
 create table linkedaccounts(
 	account char(8) primary key references accounts(account) on update cascade, 
+	-- id is unnecessary in this case but it provides a good foreign key constraint 
+	-- which allows only id in mobilereg table to be added in this table.
 	id char(18) references mobilereg(id) on update cascade
 );
 

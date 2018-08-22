@@ -1,7 +1,7 @@
 package com.example.davychen.helloworld.services;
 
 import com.example.davychen.helloworld.myIO;
-import com.example.davychen.helloworld.transactionConfirmationPage;
+import com.example.davychen.helloworld.Activity.transactionConfirmationPage;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

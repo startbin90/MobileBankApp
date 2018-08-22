@@ -1,5 +1,3 @@
-import sun.util.resources.ms.CalendarData_ms_MY;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -10,6 +8,10 @@ import java.util.Objects;
 /**
  * dbServer is responsible for any interaction with background database
  * including connecting to the database, making insertion and modification operations
+ *
+ * class returnMessage in used as return type in some methods below. These methods
+ * usually returns result code as well as message to be sent to client. In some cases
+ * which only result code is returned, int is used as return type.
  */
 public class dbServer {
 
@@ -83,7 +85,7 @@ public class dbServer {
             if (add.executeUpdate() == 1){
                 return new returnMessage(myIO.SUCCESS);
             }else{
-                return new returnMessage(myIO.MOBILEREG_INSERTION_ERROR); //mobilereg table insertion error
+                return new returnMessage(myIO.INSERTION_ERROR_MOBILEREG); //mobilereg table insertion error
             }
 
         }catch (SQLException e) {
@@ -111,7 +113,8 @@ public class dbServer {
                     String actualPwd = ret.getString(1);
                     String id = ret.getString(2);
                     if (Objects.equals(actualPwd, pwd)){
-                        return new returnMessage(myIO.SUCCESS, myIO.toBytes(id, 18));// login successful
+                        // login successful, take NIN back since retrieveInfo needs it
+                        return new returnMessage(myIO.SUCCESS, myIO.toBytes(id, 18));
                     }else {
                         return  new returnMessage(myIO.WRONG_ACCOUNT_PASSWORD_COMBO); // wrong password but account exist
                     }
@@ -136,12 +139,13 @@ public class dbServer {
                         if (Objects.equals(ret1.getString(1), pwd)){
                             return new returnMessage(myIO.SUCCESS, myIO.toBytes(id, 18));// login successful
                         }else {
-                            return  new returnMessage(myIO.WRONG_ACCOUNT_PASSWORD_COMBO); // wrong password but account exist
+                            return new returnMessage(myIO.WRONG_ACCOUNT_PASSWORD_COMBO); // wrong password but account exist
                         }
 
                     }else {
-                        //id in linkedaccounts but not in mobilereg, which can't happen since linkedaccounts.id
-                        //references mobilereg.id. Every id has to be in mobilereg table before added to linkedaccounts.
+                        // id in linkedaccounts but not in mobilereg, which can't happen since by database definition
+                        // linkedaccounts.id references mobilereg.id.
+                        // Every id has to be in mobilereg table before added to linkedaccounts.
                         return new returnMessage(myIO.SERVER_ERROR);
                     }
 
@@ -163,11 +167,11 @@ public class dbServer {
     returnMessage retrieve(String id){
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try{
-            PreparedStatement retrive = connection.prepareStatement(
+            PreparedStatement retrieve = connection.prepareStatement(
                     "select * from mobilereg where id = ?;");
 
-            retrive.setString(1, id);
-            ResultSet ret = retrive.executeQuery();
+            retrieve.setString(1, id);
+            ResultSet ret = retrieve.executeQuery();
 
             PreparedStatement accounts = connection.prepareStatement(
                          "select accounts.account, accounts.balance, person.firstname, person.lastname"
@@ -209,7 +213,7 @@ public class dbServer {
                 return new returnMessage(myIO.SUCCESS, out.toByteArray());
 
             }else {
-                return new returnMessage(myIO.SERVER_ERROR); //mobile bank user not exists
+                return new returnMessage(myIO.NIN_NOT_REGISTER); //mobile bank user not exists
             }
         } catch (SQLException | IOException e) {
             e.printStackTrace();
@@ -229,7 +233,7 @@ public class dbServer {
             retrieve.setString(1, account_num);
             Timestamp start_Ts = new java.sql.Timestamp(start);
             Timestamp end_Ts = new java.sql.Timestamp(end);
-            System.out.println("start: " + start_Ts.toString() + ", end: " + end_Ts.toString());
+            //System.out.println("start: " + start_Ts.toString() + ", end: " + end_Ts.toString());
             retrieve.setTimestamp(2, start_Ts);
             retrieve.setTimestamp(3, end_Ts);
             ResultSet ret = retrieve.executeQuery();
@@ -285,11 +289,11 @@ public class dbServer {
     returnMessage retrievePayees(String email){
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try{
-            PreparedStatement retrive = connection.prepareStatement(
+            PreparedStatement retrieve = connection.prepareStatement(
                     "select * from recipients where email = ? order by lastname;");
 
-            retrive.setString(1,email);
-            ResultSet ret = retrive.executeQuery();
+            retrieve.setString(1,email);
+            ResultSet ret = retrieve.executeQuery();
 
             ArrayList<byte[]> arr = new ArrayList<>();
             int count = 0;
@@ -372,7 +376,8 @@ public class dbServer {
      * if success, execute transaction, modify balances of two sides
      * if success, generate transaction detail
      */
-    int transaction(String from, String payee, String first_name, String last_name,float value, String trans_pwd, String memo){
+    int transaction(String from, String payee, String first_name, String last_name,
+                    float value, String trans_pwd, String memo){
         int ret = transPwdChecker(from, trans_pwd);
         if ( ret == 0){
 
@@ -438,6 +443,7 @@ public class dbServer {
             insert_payee.setTimestamp(1, ts);
             insert_payee.setString(2, payee);
             insert_payee.setString(3, from);
+                // get last name for from
                 PreparedStatement find_from_last_name = connection.prepareStatement(
                         "select person.lastname from accounts join person on accounts.id = person.id where account = ?");
                 find_from_last_name.setString(1, from);
@@ -627,7 +633,7 @@ public class dbServer {
                 }
                 if (!linked.isEmpty()){
                     // account already linked to some nin registration
-                    return new returnMessage(myIO.PROVIDED_ACCOUNT_LINKED);
+                    return new returnMessage(myIO.ACCOUNT_LINKED);
                 }else{
                     returnMessage retMsg = registerAuth(nin, account, withdrawals_password);
                     int retCode = retMsg.getRet();
@@ -640,7 +646,7 @@ public class dbServer {
                         if (insert_ret == 1){
                             return new returnMessage(myIO.SUCCESS);//success
                         }else{
-                            return new returnMessage(myIO.LINKEDACCOUNTS_INSERTION_ERROR); //linked account insertion error
+                            return new returnMessage(myIO.INSERTION_ERROR_LINKEDACCOUNTS); //linked account insertion error
                         }
                     }
                     return retMsg;
@@ -690,7 +696,7 @@ public class dbServer {
      * helper method for personalProfileModification
      * check the uniqueness of email and cell the user wants to be updated
      */
-    private int uniquenessCheck(String email, String cell, String nin){
+    int uniquenessCheck(String email, String cell, String nin){
         try {
             PreparedStatement check_email = connection.prepareStatement(
                     "select * from mobilereg where id != ? and email = ?;");
@@ -699,7 +705,7 @@ public class dbServer {
             check_email.setString(2, email);
             ResultSet ret_email = check_email.executeQuery();
             if (ret_email.next()) {
-               return 1; // email been taken
+               return myIO.EMAIL_TAKEN; // email been taken
             }
             PreparedStatement check_cell = connection.prepareStatement(
                     "select * from mobilereg where id != ? and cell = ?;");
@@ -708,9 +714,9 @@ public class dbServer {
             check_cell.setString(2, cell);
             ResultSet ret_cell = check_cell.executeQuery();
             if (ret_cell.next()){
-                return 2; //cell been taken
+                return myIO.CELL_TAKEN; //cell been taken
             }
-            return 0; //email and cell ok;
+            return myIO.SUCCESS; //email and cell ok;
 
         }catch (SQLException e) {
             return myIO.SERVER_ERROR;
@@ -808,7 +814,7 @@ public class dbServer {
                 linked.setString(2, account);
                 ResultSet ret2 = linked.executeQuery();
                 if (ret2.next()){
-                    return new returnMessage(myIO.PROVIDED_ACCOUNT_LINKED); // account has been linked
+                    return new returnMessage(myIO.ACCOUNT_LINKED); // account has been linked
                 }
                 if (!Objects.equals(withdrawal, ret1.getString(1))){
                     return new returnMessage(myIO.WRONG_WITHDRAWAL_PASSWORD); // wrong withdrawal password
@@ -817,9 +823,12 @@ public class dbServer {
                 }
 
             }else{
-                return new returnMessage(myIO.SPECIFIED_ACCOUNT_NOT_FOUND);  //registerAuthentication does not find the account specified by nin and account number.
+                //registerAuthentication does not find the account specified by nin and account number.
+                // wrong nin and account number combination
+                return new returnMessage(myIO.SPECIFIED_ACCOUNT_NOT_FOUND);
             }
         }catch (SQLException e) {
+            e.printStackTrace();
             return new returnMessage(myIO.SERVER_ERROR);
         }
     }

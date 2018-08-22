@@ -1,4 +1,4 @@
-package com.example.davychen.helloworld;
+package com.example.davychen.helloworld.Activity;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -9,6 +9,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.davychen.helloworld.R;
+import com.example.davychen.helloworld.myIO;
 import com.example.davychen.helloworld.services.errDecode;
 import com.example.davychen.helloworld.services.passwordReset;
 

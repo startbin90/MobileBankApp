@@ -16,7 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.davychen.helloworld.R;
-import com.example.davychen.helloworld.account_detail;
+import com.example.davychen.helloworld.Activity.account_detail;
 import com.example.davychen.helloworld.items.transaction_detail_item;
 import com.example.davychen.helloworld.services.transDetailService;
 
