@@ -20,6 +20,9 @@ import com.example.davychen.helloworld.localHelper;
 import com.example.davychen.helloworld.myIO;
 import com.example.davychen.helloworld.services.LogInService;
 
+/**
+ * main
+ */
 public class MainActivity extends AppCompatActivity {
 
     public static String ip = "192.168.0.106";

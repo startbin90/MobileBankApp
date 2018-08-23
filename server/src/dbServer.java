@@ -375,34 +375,66 @@ public class dbServer {
      * if success, check transaction amount
      * if success, execute transaction, modify balances of two sides
      * if success, generate transaction detail
+     * if success, add the payee to recipients table
      */
     int transaction(String from, String payee, String first_name, String last_name,
                     float value, String trans_pwd, String memo){
-        int ret = transPwdChecker(from, trans_pwd);
-        if ( ret == 0){
+        int err = transPwdChecker(from, trans_pwd);
+        if (err == 0) {
+            err = payeeChecker(payee, first_name, last_name);
+            if (err == 0) {
+                err = amountChecker(from, value);
+                if (err == 0) {
+                    err = executeTransaction(from, payee, value);
+                    if (err == 0) {
+                        err = transactionDetailGenerator(from, payee, last_name, value, memo);
+                        if (err == 0){
+                            try {
+                                PreparedStatement find_nin = connection.prepareStatement(
+                                        "select id from linkedaccounts where account = ?;");
+                                find_nin.setString(1, from);
+                                ResultSet ret = find_nin.executeQuery();
+                                if (ret.next()) {
+                                    String nin = ret.getString(1);
+                                    PreparedStatement self_transfer = connection.prepareStatement(
+                                            "select account from linkedaccounts where id = ?;");
+                                    self_transfer.setString(1, nin);
+                                    ResultSet ret2 = self_transfer.executeQuery();
+                                    ArrayList<String> arr = new ArrayList<>();
+                                    while (ret2.next()){
+                                        arr.add(ret2.getString(1));
+                                    }
+                                    if (!arr.contains(payee)){
+                                        PreparedStatement find_email = connection.prepareStatement(
+                                                "select email from mobilereg where id = ?;");
+                                        find_email.setString(1, nin);
+                                        ResultSet ret1 = find_email.executeQuery();
+                                        if (ret1.next()) {
+                                            String email = ret1.getString(1);
+                                            ByteArrayOutputStream out = new ByteArrayOutputStream();
+                                            out.write(myIO.toBytes(email, 50));
+                                            out.write(1);
+                                            out.write(myIO.toBytes(payee, 8));
+                                            out.write(myIO.toBytes(first_name, 10));
+                                            out.write(myIO.toBytes(last_name, 10));
+                                            if (modifyPayees(out.toByteArray()) == 1) {
+                                                System.out.println("Post transaction Payee addition successful");
+                                            }
 
-            int payeeCheck = payeeChecker(payee, first_name, last_name);
-            if (payeeCheck == 0){
+                                        }
 
-                int amountCheck = amountChecker(from, value);
-                if (amountCheck == 0){
-                    int execute = executeTransaction(from, payee, value);
-                    if (execute == 0){
-                        return transactionDetailGenerator(from, payee, last_name, value, memo);
-                    }else{
-                        return execute;
+                                    }
+                                }
+                            } catch (SQLException | IOException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
                     }
-                }else{
-                    return amountCheck;
                 }
-
-            }else{
-                return payeeCheck;
             }
-
-        }else{
-            return ret;
         }
+        return err;
     }
 
     /**

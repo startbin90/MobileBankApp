@@ -115,7 +115,7 @@ public class payeeMaintenance extends Fragment implements payeeMaintenanceInterf
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        modifyPayees run = new modifyPayees(parentAct.email, adapter, parentAct);
+                        modifyPayees run = new modifyPayees(adapter, parentAct);
                         run.setDeleteMode(position);
 
                         payeeMaintenanceAsyncTask task = new payeeMaintenanceAsyncTask(payeeMaintenance.this);
@@ -166,7 +166,7 @@ public class payeeMaintenance extends Fragment implements payeeMaintenanceInterf
                     fieldsChecker.setTextColor(getResources().getColor(R.color.colorAccent));
                     fieldsChecker.setText(R.string.no_modification);
                 }else{
-                    modifyPayees run = new modifyPayees(parentAct.email, adapter, parentAct);
+                    modifyPayees run = new modifyPayees(adapter, parentAct);
                     run.setEditMode(position, account_num.getText().toString(), first_name.getText().toString(), last_name.getText().toString());
 
                     payeeMaintenanceAsyncTask task = new payeeMaintenanceAsyncTask(payeeMaintenance.this);
@@ -231,7 +231,7 @@ public class payeeMaintenance extends Fragment implements payeeMaintenanceInterf
                     fieldsChecker.setTextColor(getResources().getColor(R.color.colorAccent));
                     fieldsChecker.setText(R.string.empty_names_fields);
                 }else{
-                    modifyPayees run = new modifyPayees(parentAct.email, adapter, parentAct);
+                    modifyPayees run = new modifyPayees(adapter, parentAct);
                     run.setAddNewMode(account_num.getText().toString(), first_name.getText().toString(), last_name.getText().toString());
 
                     payeeMaintenanceAsyncTask task = new payeeMaintenanceAsyncTask(payeeMaintenance.this);

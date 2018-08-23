@@ -27,10 +27,10 @@ public class modifyPayees implements Runnable {
     account act;
     int err;
 
-    public modifyPayees(@NonNull String email, @NonNull payeeItemAdapter adapter, @NonNull account act) {
-        this.email = email;
+    public modifyPayees(@NonNull payeeItemAdapter adapter, @NonNull account act) {
         this.adapter = adapter;
         this.act = act;
+        this.email = act.email;
     }
 
     public void setAddNewMode(@NonNull String new_account, @NonNull String first_name,

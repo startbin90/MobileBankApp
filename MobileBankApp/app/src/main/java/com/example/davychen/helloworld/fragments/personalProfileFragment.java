@@ -147,6 +147,9 @@ class profileModificationAsyncTask extends AsyncTask<Void, Void, returnMessage> 
             email.setText(new_email.getText().toString());
             cell.setText(new_cell.getText().toString());
             addr.setText(new_addr.getText().toString());
+            context.parentAct.email = new_email.getText().toString();
+            context.parentAct.cell = new_cell.getText().toString();
+            context.parentAct.addr = new_addr.getText().toString();
             context.submit.setText(R.string.success);
             context.submit.setBackgroundResource(android.R.color.holo_green_light);
         }else{

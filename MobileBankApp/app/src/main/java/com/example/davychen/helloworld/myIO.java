@@ -14,11 +14,45 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
+import java.sql.ClientInfoStatus;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class myIO {
+
+    /**
+     * constants for result code
+     * INSERTION_ERROR usually don't happen.
+     */
     static private int bufSize = 1024;
+    static int CLIENT_ERROR = -2;
+    static int SERVER_ERROR = -1;
+    static int SUCCESS = 0;
+    static int FAILED = 1;
+    static int WRONG_ACCOUNT_PASSWORD_COMBO = 2;
+    static int INVALID_EMAIL_ADDRESS = 3;
+    static int ACCOUNT_NOT_LINKED = 4;
+    static int NOT_STRONG_PASSWORD = 5;
+    //transaction balance update failed
+    static int TRANSACTION_FAILED= 6;
+    static int CONNECTION_FAILED = 7;
+    static int ACCOUNT_NOT_FOUND = 8;
+    //person with this NIN has not open mobile banking service
+    static int NIN_NOT_REGISTER = 9;
+    static int WRONG_TRANSACTION_PASSWORD = 10;
+    static int INSERTION_ERROR_MOBILEREG = 11;
+    static int PAYEE_INFO_NOT_MATCHING = 12;
+    static int INVALID_TRANSACTION_AMOUNT = 13;
+    static int ACCOUNT_LINKED = 14;
+    static int WRONG_WITHDRAWAL_PASSWORD = 15;
+    static int ACCOUNT_ADDITION_NAME_NOT_MATCH = 16;
+    static int INSERTION_ERROR_LINKEDACCOUNTS = 17;
+    static int EMAIL_TAKEN = 18;
+    static int CELL_TAKEN = 19;
+    static int SERVER_TIMEOUT = 20;
+    // wrong nin and account number combination
+    static int SPECIFIED_ACCOUNT_NOT_FOUND = 21;
+    static int TRANSACTION_DETAIL_INSERTION_ERROR = 22;
     static String TAG = "myIO";
     /**
      * convert int to byte[]
@@ -42,6 +76,10 @@ public class myIO {
         return i;
     }
 
+    /**
+     * send request to server
+     * receive reply message
+     */
     public static byte[] toServer(int req, byte[] mes){
         Socket soc;
         if ((soc = send(req, mes)) != null){
@@ -50,16 +88,17 @@ public class myIO {
                 return receive(soc);
             } catch (SocketException e) {
                 Log.e(TAG, "setSoTimeout failed");
-                return myIO.intToBytes(-2);
+                return myIO.intToBytes(CLIENT_ERROR);
             } catch (SocketTimeoutException e) {
-                return myIO.intToBytes(20); // server time out
+                Log.i(TAG, "Server Timeout");
+                return myIO.intToBytes(SERVER_TIMEOUT); // server time out
             } catch (IOException e) {
                 Log.e(TAG, "receive method error");
-                return myIO.intToBytes(-2);
+                return myIO.intToBytes(CLIENT_ERROR);
             }
 
         }else{
-            return myIO.intToBytes(7); // connection error
+            return myIO.intToBytes(CONNECTION_FAILED); // connection error
         }
     }
 
@@ -111,6 +150,9 @@ public class myIO {
         return socket;
     }
 
+    /**
+     * receive message from client via socket
+     */
     private static byte[] receive(Socket socket) throws IOException{
 
         InputStream is = socket.getInputStream();
@@ -125,6 +167,9 @@ public class myIO {
 
     }
 
+    /**
+     * read from InputStream in
+     */
     private static byte[] read(InputStream in) throws IOException{
         //bLen/len only represents the length of message not including one byte indicating
         //whether if there are more messages upcoming
@@ -149,10 +194,16 @@ public class myIO {
 
     }
 
+    /**
+     * simple check on the input of email format
+     */
     public static boolean isValidEmail(CharSequence target) {
         return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
 
+    /**
+     * simple check on the input of IP format
+     */
     public static boolean validIP (String ip) {
         try {
             if ( ip == null || ip.isEmpty() ) {
@@ -176,6 +227,10 @@ public class myIO {
         }
     }
 
+    /**
+     * simple check on the password
+     * input password should have at least 8 characters and have both digits and letters
+     */
     public static int pwdChecker(String password) {
         boolean hasLetter = false;
         boolean hasDigit = false;
@@ -206,6 +261,11 @@ public class myIO {
             return 2;//("HAVE AT LEAST 8 CHARACTERS");
         }
     }
+
+    /**
+     * simple check on the account number
+     * account number should have 8 digits
+     */
     public static boolean isAccountNumber(String num){
         if (num == null || "".equals(num) || num.length() != 8) {
             return false;
@@ -218,6 +278,11 @@ public class myIO {
         return true;
 
     }
+
+    /**
+     * simple check on the ID
+     * simple ID should have 18 digits
+     */
     public static boolean isSimpleIDNumber(String IDNumber){
         if (IDNumber == null || "".equals(IDNumber) || IDNumber.length() != 18) {
             return false;
@@ -230,6 +295,11 @@ public class myIO {
         return true;
 
     }
+
+    /**
+     * a more complicated National Identity Number(NIN) checker
+     * Not used due to simplicity and testing convenience
+     */
     public static boolean isIDNumber(String IDNumber) {
         if (IDNumber == null || "".equals(IDNumber)) {
             return false;
@@ -299,6 +369,10 @@ public class myIO {
         return matches;
     }
 
+    /**
+     * convert a String to bytes array of length byteLen
+     * fill the rest with ' ' space if byteLen is larger than length of str
+     */
     public static byte[] toBytes(String str, int byteLen){
         byte[] buf = new byte[byteLen];
         for (int i = 0; i < byteLen; i++){
