@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,6 +67,18 @@ public class account_detail extends AppCompatActivity {
         this.balance = theIntent.getStringExtra("BALANCE");
         this.first_name =  theIntent.getStringExtra("first_name");
         this.last_name =  theIntent.getStringExtra("last_name");
+
+        ImageButton transfer = findViewById(R.id.transfer);
+        transfer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.putExtra("from_account",account_detail.this.account_num);
+                account_detail.this.setResult(11, intent);
+                account_detail.this.finish();
+
+            }
+        });
 
         TextView account_num_title = findViewById(R.id.account_num);
         account_num_title.setText(this.account_num);

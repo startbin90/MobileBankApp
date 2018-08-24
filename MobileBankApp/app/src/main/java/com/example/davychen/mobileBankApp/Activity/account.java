@@ -287,6 +287,31 @@ public class account extends AppCompatActivity
             }
 
 
+        }else if (requestCode == 1 && resultCode == 11){
+
+            String from_account = data.getStringExtra("from_account");
+            account_item from = null;
+            for (account_item each: itemLst){
+                if (each.getAccount_num().equals(from_account)){
+                    from = each;
+                }
+            }
+
+            if (from != null){
+                current_fragment = transfer.newInstance(this, null, from);
+                if (current_fragment != null) {
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    ft.replace(R.id.fragment_holder, current_fragment);
+                    ft.commit();
+                }
+
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+                NavigationView navigationView = findViewById(R.id.nav_view);
+                navigationView.getMenu().getItem(1).setChecked(true);
+            }
+
+
         }
     }
 }

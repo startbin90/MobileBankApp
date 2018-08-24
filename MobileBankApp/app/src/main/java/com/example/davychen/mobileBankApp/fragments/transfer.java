@@ -191,14 +191,15 @@ public class transfer extends Fragment implements payeeItemAdapter.OnItemClickLi
         last_name.setOnFocusChangeListener(this);
         value.setOnFocusChangeListener(this);
         EditText memo = mView.findViewById(R.id.memo_field);
-        if (detail_item != null && payer != null){
+        if (payer != null){
             onPaymentAccountSelected(payer);
+        }
+        if (detail_item != null){
             recipient.setText(detail_item.getTrans_to());
             first_name.setText(detail_item.getTrans_to_first_name());
             last_name.setText(detail_item.getTrans_to_last_name());
             value.setText(String.valueOf(detail_item.getTrans_value()));
             memo.setText(detail_item.getTrans_memo());
-
         }
         return view;
     }
