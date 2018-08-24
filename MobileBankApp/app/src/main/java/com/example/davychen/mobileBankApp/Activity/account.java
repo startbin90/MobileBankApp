@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.example.davychen.mobileBankApp.R;
 import com.example.davychen.mobileBankApp.adapters.accountItemAdapter;
+import com.example.davychen.mobileBankApp.adapters.transDetailItemAdapter;
 import com.example.davychen.mobileBankApp.fragments.accountAdditionFragment;
 import com.example.davychen.mobileBankApp.fragments.accounts_list;
 import com.example.davychen.mobileBankApp.fragments.payeeMaintenance;
@@ -30,6 +31,7 @@ import com.example.davychen.mobileBankApp.fragments.personalProfileFragment;
 import com.example.davychen.mobileBankApp.fragments.settingFragment;
 import com.example.davychen.mobileBankApp.fragments.transfer;
 import com.example.davychen.mobileBankApp.items.account_item;
+import com.example.davychen.mobileBankApp.items.transaction_detail_item;
 import com.example.davychen.mobileBankApp.myIO;
 
 import java.nio.ByteBuffer;
@@ -113,7 +115,8 @@ public class account extends AppCompatActivity
         });
 
         //default screen
-        displaySelectedScreen(R.id.transfer);
+        displaySelectedScreen(R.id.accounts);
+        navigationView.getMenu().getItem(0).setChecked(true);
 
         View headerView = navigationView.getHeaderView(0);
         TextView navGreeting = headerView.findViewById(R.id.nav_header_greeting);
@@ -180,7 +183,7 @@ public class account extends AppCompatActivity
 
     }
 
-    private void displaySelectedScreen(int itemId) {
+    public void displaySelectedScreen(int itemId) {
         //initializing the fragment object which is selected
         switch (itemId) {
             case R.id.accounts:
@@ -242,10 +245,48 @@ public class account extends AppCompatActivity
             detail.putExtra("BALANCE", balance);
             detail.putExtra("first_name", first_name);
             detail.putExtra("last_name", last_name);
-            account.this.startActivity(detail);
+            account.this.startActivityForResult(detail, 1);
         }else if (current_fragment instanceof transfer){
             ((transfer) current_fragment).onPaymentAccountSelected(
                     new account_item(account, Float.parseFloat(balance), first_name, last_name));
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == 10){
+
+            String from_account = data.getStringExtra("from_account");
+            account_item from = null;
+            for (account_item each: itemLst){
+                if (each.getAccount_num().equals(from_account)){
+                    from = each;
+                }
+            }
+            String to_account = data.getStringExtra("to_account");
+            String to_first_name = data.getStringExtra("to_first_name");
+            String to_last_name = data.getStringExtra("to_last_name");
+            float value = data.getFloatExtra("value", 0);
+            String memo = data.getStringExtra("memo");
+
+            if (from != null){
+                current_fragment = transfer.newInstance(this,
+                        new transaction_detail_item(to_account, to_first_name, to_last_name, value, memo),
+                        from);
+                if (current_fragment != null) {
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    ft.replace(R.id.fragment_holder, current_fragment);
+                    ft.commit();
+                }
+
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+                NavigationView navigationView = findViewById(R.id.nav_view);
+                navigationView.getMenu().getItem(1).setChecked(true);
+            }
+
+
         }
     }
 }

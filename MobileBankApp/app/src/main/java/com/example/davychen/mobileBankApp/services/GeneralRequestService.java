@@ -6,6 +6,11 @@ import com.example.davychen.mobileBankApp.returnMessage;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 
+/**
+ * Service used to send Server request and receive reply
+ * implement Runnable and Callable interface so that the class
+ * can be used in either way
+ */
 public class GeneralRequestService implements Runnable, Callable<returnMessage>{
 
     int err;
@@ -13,6 +18,11 @@ public class GeneralRequestService implements Runnable, Callable<returnMessage>{
     byte[] data;
     byte[] send;
 
+    /**
+     * constructor
+     * @param reqCode request code
+     * @param send message or data user wants to send
+     */
     public GeneralRequestService(int reqCode, byte[] send) {
         this.send = send;
         this.reqCode = reqCode;

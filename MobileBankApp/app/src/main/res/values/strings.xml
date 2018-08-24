@@ -51,10 +51,10 @@
     <string name="transaction_date">Transaction Date:</string>
     <string name="transaction_from">From:</string>
     <string name="transaction_to">To:</string>
-    <string name="borrowing_sign">Borrowing Sign:</string>
+    <string name="borrowing_sign">Borrowing\nSign:</string>
     <string name="value">Value</string>
-    <string name="post_transaction_balance">Post Transaction Balance</string>
-    <string name="transaction_channel">Transaction Channel</string>
+    <string name="post_transaction_balance">Balance after\nTransaction</string>
+    <string name="transaction_channel">Transaction\nChannel</string>
     <string name="memo">Memo</string>
     <string name="payees_maintenance">Payees Maintenance</string>
     <string name="edit">Edit</string>
@@ -85,4 +85,10 @@
     <string name="please_confirm">Please Confirm:</string>
     <string name="log_out">Log out</string>
     <string name="select_a_payment_account">Select a payment account</string>
+    <string name="redo">Redo</string>
+    <string name="borrow">Borrow</string>
+    <string name="loan">Loan</string>
+    <string name="mobile_client">Mobile Client</string>
+    <string name="web">Web</string>
+    <string name="bank_counter">Bank Counter</string>
 </resources>

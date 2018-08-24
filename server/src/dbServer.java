@@ -249,18 +249,20 @@ public class dbServer {
                 arr.add(myIO.toBytes(ret.getString(3), 8));
                 //trans_to size 8
                 arr.add(myIO.toBytes(ret.getString(4), 8));
-                //trans_to_last_name size 10
+                //trans_to_first_name size 10
                 arr.add(myIO.toBytes(ret.getString(5), 10));
+                //trans_to_last_name size 10
+                arr.add(myIO.toBytes(ret.getString(6), 10));
                 //trans_dir size 1
-                arr.add(myIO.toBytes(ret.getString(6), 1));
+                arr.add(myIO.toBytes(ret.getString(7), 1));
                 //trans_value size 4
-                arr.add(myIO.floatToBytes(ret.getFloat(7)));
-                //trans_post_balance size 4
                 arr.add(myIO.floatToBytes(ret.getFloat(8)));
+                //trans_post_balance size 4
+                arr.add(myIO.floatToBytes(ret.getFloat(9)));
                 //trans_channel size 1
-                arr.add(myIO.toBytes(ret.getString(9), 1));
+                arr.add(myIO.toBytes(ret.getString(10), 1));
                 //trans_meme size 100
-                arr.add(myIO.toBytes(ret.getString(10), 100));
+                arr.add(myIO.toBytes(ret.getString(11), 100));
                 count++;
             }
             returnMessage retMsg;
@@ -387,7 +389,7 @@ public class dbServer {
                 if (err == 0) {
                     err = executeTransaction(from, payee, value);
                     if (err == 0) {
-                        err = transactionDetailGenerator(from, payee, last_name, value, memo);
+                        err = transactionDetailGenerator(from, payee, first_name, last_name, value, memo);
                         if (err == 0){
                             try {
                                 PreparedStatement find_nin = connection.prepareStatement(
@@ -443,17 +445,18 @@ public class dbServer {
      * another transaction detail has its transaction direction as Loan '-'
      * flip from account and payee account
      */
-    private int transactionDetailGenerator(String from, String payee, String last_name, float value, String memo){
+    private int transactionDetailGenerator(String from, String payee, String first_name, String last_name, float value, String memo){
         try {
             PreparedStatement insert_from = connection.prepareStatement(
-                    "insert into transaction values (default, ?,?,?,?,'-',?,?,'1',?); ");
+                    "insert into transaction values (default, ?,?,?,?,?,'-',?,?,'1',?); ");
 
             Timestamp ts = new java.sql.Timestamp(System.currentTimeMillis());
             insert_from.setTimestamp(1, ts);
             insert_from.setString(2, from);
             insert_from.setString(3, payee);
-            insert_from.setString(4, last_name);
-            insert_from.setFloat(5, value);
+            insert_from.setString(4, first_name);
+            insert_from.setString(5, last_name);
+            insert_from.setFloat(6, value);
 
                 PreparedStatement find_from_post_balance = connection.prepareStatement(
                         "select balance from accounts where account = ?");
@@ -461,32 +464,34 @@ public class dbServer {
                 ResultSet ret = find_from_post_balance.executeQuery();
                 if (ret.next()){
                     float post_balance = ret.getFloat(1);
-                    insert_from.setFloat(6,post_balance);
+                    insert_from.setFloat(7,post_balance);
                 }else{
                     return myIO.ACCOUNT_NOT_FOUND; //account not existing
                 }
 
-            insert_from.setString(7, memo);
+            insert_from.setString(8, memo);
             int from_ret = insert_from.executeUpdate();
 
             PreparedStatement insert_payee = connection.prepareStatement(
-                    "insert into transaction values (default, ?,?,?,?,'+',?,?,'1',?); ");
+                    "insert into transaction values (default, ?,?,?,?,?,'+',?,?,'1',?); ");
 
             insert_payee.setTimestamp(1, ts);
             insert_payee.setString(2, payee);
             insert_payee.setString(3, from);
                 // get last name for from
-                PreparedStatement find_from_last_name = connection.prepareStatement(
-                        "select person.lastname from accounts join person on accounts.id = person.id where account = ?");
-                find_from_last_name.setString(1, from);
-                ResultSet find_from_last_name_ret = find_from_last_name.executeQuery();
-                if (find_from_last_name_ret.next()){
-                    String from_last_name = find_from_last_name_ret.getString(1);
-                    insert_payee.setString(4, from_last_name);
+                PreparedStatement find_from_name = connection.prepareStatement(
+                        "select person.firstname, person.lastname from accounts join person on accounts.id = person.id where account = ?");
+                find_from_name.setString(1, from);
+                ResultSet find_from_name_ret = find_from_name.executeQuery();
+                if (find_from_name_ret.next()){
+                    String from_first_name = find_from_name_ret.getString(1);
+                    String from_last_name = find_from_name_ret.getString(2);
+                    insert_payee.setString(4, from_first_name);
+                    insert_payee.setString(5, from_last_name);
                 }else{
                     return myIO.ACCOUNT_NOT_FOUND; //account not existing
                 }
-            insert_payee.setFloat(5, value);
+            insert_payee.setFloat(6, value);
 
             PreparedStatement find_payee_post_balance = connection.prepareStatement(
                     "select balance from accounts where account = ?");
@@ -494,12 +499,12 @@ public class dbServer {
             ResultSet find_payee_post_balance_ret = find_payee_post_balance.executeQuery();
             if (find_payee_post_balance_ret.next()){
                 float post_balance = find_payee_post_balance_ret.getFloat(1);
-                insert_payee.setFloat(6,post_balance);
+                insert_payee.setFloat(7,post_balance);
             }else{
                 return myIO.ACCOUNT_NOT_FOUND; //account not existing
             }
 
-            insert_payee.setString(7, memo);
+            insert_payee.setString(8, memo);
             int payee_ret = insert_payee.executeUpdate();
             if (from_ret == 1 && payee_ret == 1){
                 return myIO.SUCCESS;//success

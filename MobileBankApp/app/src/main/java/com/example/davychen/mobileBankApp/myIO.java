@@ -25,34 +25,34 @@ public class myIO {
      * INSERTION_ERROR usually don't happen.
      */
     static private int bufSize = 1024;
-    static int CLIENT_ERROR = -2;
-    static int SERVER_ERROR = -1;
-    static int SUCCESS = 0;
-    static int FAILED = 1;
-    static int WRONG_ACCOUNT_PASSWORD_COMBO = 2;
-    static int INVALID_EMAIL_ADDRESS = 3;
-    static int ACCOUNT_NOT_LINKED = 4;
-    static int NOT_STRONG_PASSWORD = 5;
+    public static int CLIENT_ERROR = -2;
+    public static int SERVER_ERROR = -1;
+    public static int SUCCESS = 0;
+    public static int FAILED = 1;
+    public static int WRONG_ACCOUNT_PASSWORD_COMBO = 2;
+    public static int INVALID_EMAIL_ADDRESS = 3;
+    public static int ACCOUNT_NOT_LINKED = 4;
+    public static int NOT_STRONG_PASSWORD = 5;
     //transaction balance update failed
-    static int TRANSACTION_FAILED= 6;
-    static int CONNECTION_FAILED = 7;
-    static int ACCOUNT_NOT_FOUND = 8;
+    public static int TRANSACTION_FAILED= 6;
+    public static int CONNECTION_FAILED = 7;
+    public static int ACCOUNT_NOT_FOUND = 8;
     //person with this NIN has not open mobile banking service
-    static int NIN_NOT_REGISTER = 9;
-    static int WRONG_TRANSACTION_PASSWORD = 10;
-    static int INSERTION_ERROR_MOBILEREG = 11;
-    static int PAYEE_INFO_NOT_MATCHING = 12;
-    static int INVALID_TRANSACTION_AMOUNT = 13;
-    static int ACCOUNT_LINKED = 14;
-    static int WRONG_WITHDRAWAL_PASSWORD = 15;
-    static int ACCOUNT_ADDITION_NAME_NOT_MATCH = 16;
-    static int INSERTION_ERROR_LINKEDACCOUNTS = 17;
-    static int EMAIL_TAKEN = 18;
-    static int CELL_TAKEN = 19;
-    static int SERVER_TIMEOUT = 20;
+    public static int NIN_NOT_REGISTER = 9;
+    public static int WRONG_TRANSACTION_PASSWORD = 10;
+    public static int INSERTION_ERROR_MOBILEREG = 11;
+    public static int PAYEE_INFO_NOT_MATCHING = 12;
+    public static int INVALID_TRANSACTION_AMOUNT = 13;
+    public static int ACCOUNT_LINKED = 14;
+    public static int WRONG_WITHDRAWAL_PASSWORD = 15;
+    public static int ACCOUNT_ADDITION_NAME_NOT_MATCH = 16;
+    public static int INSERTION_ERROR_LINKEDACCOUNTS = 17;
+    public static int EMAIL_TAKEN = 18;
+    public static int CELL_TAKEN = 19;
+    public static int SERVER_TIMEOUT = 20;
     // wrong nin and account number combination
-    static int SPECIFIED_ACCOUNT_NOT_FOUND = 21;
-    static int TRANSACTION_DETAIL_INSERTION_ERROR = 22;
+    public static int SPECIFIED_ACCOUNT_NOT_FOUND = 21;
+    public static int TRANSACTION_DETAIL_INSERTION_ERROR = 22;
     static String TAG = "myIO";
     /**
      * convert int to byte[]

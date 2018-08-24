@@ -3,6 +3,7 @@ package com.example.davychen.mobileBankApp.adapters;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,11 +13,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.davychen.mobileBankApp.R;
-import com.example.davychen.mobileBankApp.Activity.account_detail;
+import com.example.davychen.mobileBankApp.Activity.*;
 import com.example.davychen.mobileBankApp.items.transaction_detail_item;
 import com.example.davychen.mobileBankApp.services.transDetailService;
 
@@ -173,12 +175,28 @@ public class transDetailItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
         @Override
         public void onClick(View v) {
-            transaction_detail_item item = lst.get(getAdapterPosition());
+            final transaction_detail_item item = lst.get(getAdapterPosition());
             AlertDialog.Builder builder = new AlertDialog.Builder(transDetailItemAdapter.this.context);
             @SuppressLint("InflateParams")
             final View mView = ((Activity)transDetailItemAdapter.this.context).getLayoutInflater()
                     .inflate(R.layout.detailed_transaction_layout, null);
+            Button redo = mView.findViewById(R.id.redo);
+            redo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent();
+                    intent.putExtra("from_account",((account_detail)transDetailItemAdapter.this.context).account_num);
+                    intent.putExtra("to_account",item.getTrans_to());
+                    intent.putExtra("to_first_name",item.getTrans_to_first_name());
+                    intent.putExtra("to_last_name",item.getTrans_to_last_name());
+                    intent.putExtra("value",item.getTrans_value());
+                    intent.putExtra("memo",item.getTrans_memo());
 
+                    ((Activity)transDetailItemAdapter.this.context).setResult(10, intent);
+                    ((Activity)transDetailItemAdapter.this.context).finish();
+
+                }
+            });
             TextView transaction_id_field = mView.findViewById(R.id.transaction_id_field);
             transaction_id_field.setText(item.getTrans_id());
             TextView transaction_date_field = mView.findViewById(R.id.transaction_date_field);
@@ -188,11 +206,27 @@ public class transDetailItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             TextView transaction_to_field = mView.findViewById(R.id.transaction_to_field);
             transaction_to_field.setText(item.getTrans_to());
             TextView transaction_to_lname_field = mView.findViewById(R.id.transaction_to_lname_field);
-            transaction_to_lname_field.setText(item.getTrans_to_lname());
+            transaction_to_lname_field.setText(item.getTrans_to_last_name());
             TextView transaction_value_field = mView.findViewById(R.id.transaction_value_field);
             transaction_value_field.setText(String.valueOf(item.getTrans_value()));
             TextView transaction_borrowing_sign_field = mView.findViewById(R.id.transaction_borrowing_sign_field);
-            transaction_borrowing_sign_field.setText(String.valueOf(item.getTrans_dir()));
+            // - stands for borrow, + stands for loan
+            if (item.getTrans_dir() == '-'){
+                transaction_borrowing_sign_field.setText(R.string.borrow);
+                redo.setVisibility(View.VISIBLE);
+            }else if (item.getTrans_dir() == '+'){
+                transaction_borrowing_sign_field.setText(R.string.loan);
+                redo.setVisibility(View.GONE);
+            }
+            TextView transaction_channel_field = mView.findViewById(R.id.transaction_channel_field);
+            //1 stands for mobile Client, 2 stands for Web, 3 stands for bank counter
+            if (item.getTrans_channel() == '1'){
+                transaction_channel_field .setText(R.string.mobile_client);
+            }else if (item.getTrans_dir() == '2'){
+                transaction_channel_field .setText(R.string.web);
+            }else if (item.getTrans_dir() == '3') {
+                transaction_channel_field .setText(R.string.bank_counter);
+            }
             TextView transaction_post_balance_field = mView.findViewById(R.id.transaction_post_balance_field);
             transaction_post_balance_field.setText(String.valueOf(item.getTrans_post_balance()));
             TextView transaction_memo_field = mView.findViewById(R.id.transaction_memo_field);

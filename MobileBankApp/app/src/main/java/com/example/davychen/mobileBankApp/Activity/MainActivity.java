@@ -12,16 +12,26 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.davychen.mobileBankApp.R;
 import com.example.davychen.mobileBankApp.localHelper;
 import com.example.davychen.mobileBankApp.myIO;
+import com.example.davychen.mobileBankApp.returnMessage;
+import com.example.davychen.mobileBankApp.services.GeneralRequestService;
 import com.example.davychen.mobileBankApp.services.LogInService;
+import com.example.davychen.mobileBankApp.services.errDecode;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.Arrays;
 
 /**
- * main
+ * Login activity of this application
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -75,11 +85,19 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "onResume");
     }
 
+    /**
+     * onClick method of the Sign In button
+     * @param v sign in button
+     */
     public void onSignInTap(View v){
         Intent signIn = new Intent(MainActivity.this, registerAuthentication.class);
         startActivity(signIn);
     }
 
+    /**
+     * This method is for testing purpose
+     * user can set Server IP address
+     */
     public void setIP(View v){
         EditText text = findViewById(R.id.main_ipField);
         String ip = text.getText().toString();
@@ -93,13 +111,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * onClick method of the Login Button
+     * @param v log in button
+     */
     public void logIn(View v){
-        LogInService run = new LogInService(this);
-        loginAsyncTask task = new loginAsyncTask(run);
+        loginAsyncTask task = new loginAsyncTask(this);
         task.execute();
 
     }
 
+    /**
+     * onClick method of login option radio button
+     * @param view radio button user clicked
+     */
     public void onLoginOptClicked(View view) {
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         TextView text = findViewById(R.id.main_email);
@@ -127,37 +152,89 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
-class loginAsyncTask extends AsyncTask<Void, Void , Void> {
-    LogInService run;
 
-    loginAsyncTask(LogInService run){
-        this.run = run;
+/**
+ * AsyncTask runs when Log in button pressed
+ */
+class loginAsyncTask extends AsyncTask<Void, Void ,returnMessage> {
+    private WeakReference<MainActivity> wrap;
+    private boolean check = true;
+    private String email;
+    private String pwd;
+    private char loginOpt;
+
+    loginAsyncTask(MainActivity act){
+        this.wrap = new WeakReference<>(act);
 
     }
     @Override
     protected void onPreExecute() {
-        run.getParentAct().logIn.setEnabled(false);
-        run.getParentAct().logIn.setText(R.string.submitting);
-        //run.getParentAct().logIn.setBackgroundColor(run.getParentAct().getResources().getColor(android.R.color.darker_gray));
-    }
-
-    @Override
-    protected void onPostExecute(Void aVoid) {
-        if (run.getErr() == 0){ // success and destroy mainActivity
-            Intent account = new Intent(run.getParentAct(), account.class);
-            account.putExtra("Message",run.getMsg());
-            run.getParentAct().startActivity(account);
-            run.getParentAct().finish();
-        }else{
-            run.getParentAct().logIn.setEnabled(true);
-            run.getParentAct().logIn.setText(R.string.submit);
-            //run.getParentAct().logIn.setBackgroundResource(android.R.drawable.btn_default);
+        MainActivity context = wrap.get();
+        context.logIn.setEnabled(false);
+        context.logIn.setText(R.string.submitting);
+        pwd = ((EditText)context.findViewById(R.id.main_pwdField)).getText().toString();
+        EditText text = context.findViewById(R.id.main_emailField);
+        email = text.getText().toString();
+        RadioGroup radioGroup = context.findViewById(R.id.main_radiogroup);
+        int buttonId = radioGroup.getCheckedRadioButtonId();
+        RadioButton button = context.findViewById(buttonId);
+        String buttonName = button.getText().toString();
+        switch (buttonName) {
+            case "Email":
+                loginOpt = 0;
+                break;
+            case "Account Number":
+                loginOpt = 1;
+                break;
+            default:
+                loginOpt = 2;
+                break;
+        }
+        if (loginOpt == 0 && !myIO.isValidEmail(email)){ //email login and invalid email
+            Toast.makeText(context, "Invalid Email", Toast.LENGTH_SHORT).show();
+            check = false;
+        }else if (loginOpt == 1 && !myIO.isAccountNumber(email)){ //account login and invalid account
+            Toast.makeText(context, "Invalid Account Number", Toast.LENGTH_SHORT).show();
+            check = false;
         }
     }
 
     @Override
-    protected Void doInBackground(Void... voids) {
-        this.run.run();
+    protected void onPostExecute(returnMessage ret) {
+        MainActivity context = wrap.get();
+        if (ret != null){ // success and destroy mainActivity
+            if (ret.getRet() == 0){
+                Intent account = new Intent(context, account.class);
+                account.putExtra("Message",ret.getMessage());
+                context.startActivity(account);
+                context.finish();
+            }else{
+                new errDecode(ret.getRet(), context).run();
+                context.logIn.setEnabled(true);
+                context.logIn.setText(R.string.submit);
+            }
+        }else{
+            context.logIn.setEnabled(true);
+            context.logIn.setText(R.string.submit);
+        }
+    }
+
+    @Override
+    protected returnMessage doInBackground(Void... voids) {
+        try {
+            if (check){
+                byte[] emailBytes = myIO.toBytes(email, 50);
+                byte[] pwdBytes = myIO.toBytes(pwd, 20);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                outputStream.write(loginOpt);
+                outputStream.write(emailBytes);
+                outputStream.write(pwdBytes);
+                byte msg[] = outputStream.toByteArray();
+                return new GeneralRequestService(2, msg).call();
+            }
+        } catch (IOException e) {
+            return new returnMessage(myIO.CLIENT_ERROR);
+        }
         return null;
     }
 }

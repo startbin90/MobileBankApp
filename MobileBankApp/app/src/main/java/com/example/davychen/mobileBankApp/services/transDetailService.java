@@ -43,7 +43,7 @@ public class transDetailService implements Runnable {
             byte mes[] = outputStream.toByteArray();
             byte[] ret = myIO.toServer(6, mes);
             try {
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -52,27 +52,29 @@ public class transDetailService implements Runnable {
                 int count = myIO.bytesToInt(Arrays.copyOfRange(ret, 4, 8));
                 for (int i = 0; i < count; i++){
                     //trans_id size 10
-                    String trans_id = myIO.bytesToString(ret, 8 + 154 * i, 10);
+                    String trans_id = myIO.bytesToString(ret, 8 + 164 * i, 10);
                     //trans_date size 8
-                    long trans_date = myIO.bytesToLong(ret, 18 + 154 * i, 8);
+                    long trans_date = myIO.bytesToLong(ret, 18 + 164 * i, 8);
                     //trans_from size 8
-                    String trans_from = myIO.bytesToString(ret, 26 + 154 * i, 8);
+                    String trans_from = myIO.bytesToString(ret, 26 + 164 * i, 8);
                     //trans_to size 8
-                    String trans_to = myIO.bytesToString(ret, 34 + 154 * i, 8);
+                    String trans_to = myIO.bytesToString(ret, 34 + 164 * i, 8);
+                    //trans_to_first_name size 10
+                    String trans_to_first_name = myIO.bytesToString(ret, 42 + 164 * i, 10);
                     //trans_to_last_name size 10
-                    String trans_to_lname = myIO.bytesToString(ret, 42 + 154 * i, 10);
+                    String trans_to_last_name = myIO.bytesToString(ret, 52 + 164 * i, 10);
                     //trans_dir size 1
-                    char trans_dir = (char)ret[52 + 154 * i];
+                    char trans_dir = (char)ret[62 + 164 * i];
                     //trans_value size 4
-                    float trans_value = myIO.bytesToFloat(ret, 53 + 154 * i, 4);
+                    float trans_value = myIO.bytesToFloat(ret, 63 + 164 * i, 4);
                     //trans_post_balance size 4
-                    float trans_post_balance = myIO.bytesToFloat(ret, 57 + 154 * i, 4);
+                    float trans_post_balance = myIO.bytesToFloat(ret, 67 + 164 * i, 4);
                     //trans_channel size 1
-                    char trans_channel = (char)ret[61 + 154 * i];
+                    char trans_channel = (char)ret[71 + 164 * i];
                     //trans_meme size 100
-                    String trans_memo = myIO.bytesToString(ret, 62 + 154 * i, 100);
+                    String trans_memo = myIO.bytesToString(ret, 72 + 164 * i, 100);
                     transaction_detail_item item = new transaction_detail_item(trans_id, trans_date, trans_from, trans_to,
-                            trans_to_lname, trans_dir, trans_value, trans_post_balance,
+                            trans_to_first_name, trans_to_last_name, trans_dir, trans_value, trans_post_balance,
                             trans_channel, trans_memo);
                     if (i != 0){
                         received.add(item);

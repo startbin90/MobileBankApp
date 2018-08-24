@@ -108,6 +108,8 @@ create table transaction(
 	-- on update cascade should never occurred since the account number will not be modified
 	trans_from char(8) references accounts(account) on update cascade not null,
 	trans_to char(8) references accounts(account)  on update cascade not null,
+	-- first name of trans_to
+	trans_to_firstname varchar(10) not null,
 	-- last name of trans_to
 	trans_to_lastname varchar(10) not null,
 	-- transaction direction, '-' stands for borrow, '+' stands' for loan

@@ -29,6 +29,7 @@ import com.example.davychen.mobileBankApp.Activity.account;
 import com.example.davychen.mobileBankApp.adapters.payeeItemAdapter;
 import com.example.davychen.mobileBankApp.items.account_item;
 import com.example.davychen.mobileBankApp.items.payee_item;
+import com.example.davychen.mobileBankApp.items.transaction_detail_item;
 import com.example.davychen.mobileBankApp.myIO;
 import com.example.davychen.mobileBankApp.Activity.transactionConfirmationPage;
 
@@ -45,10 +46,23 @@ public class transfer extends Fragment implements payeeItemAdapter.OnItemClickLi
     private View mView;
     private account_item from_selected = null;
     private static String TAG = "transfer";
+    //transaction detail item sent from transaction detail dialog
+    private transaction_detail_item detail_item;
+    //account item sent from transaction detail dialog
+    private account_item payer;
     //private static int accountNumberLength = 8;
 
     public transfer() {
         // Required empty public constructor
+    }
+
+    public static transfer newInstance(account act, transaction_detail_item item, account_item payer) {
+        transfer f = new transfer();
+        f.parentAct = act;
+        f.accountList = act.itemLst;
+        f.detail_item = item;
+        f.payer = payer;
+        return f;
     }
 
     public static transfer newInstance(account act) {
@@ -114,6 +128,10 @@ public class transfer extends Fragment implements payeeItemAdapter.OnItemClickLi
             }
         });
 
+
+        final TextInputEditText recipient = mView.findViewById(R.id.recipient_field);
+        final TextInputEditText first_name = mView.findViewById(R.id.first_name_field);
+        final TextInputEditText last_name = mView.findViewById(R.id.last_name_field);
         EditText value = mView.findViewById(R.id.value_field);
         value.setFilters(new InputFilter[] {new DecimalDigitsInputFilter(2)});
 
@@ -167,15 +185,21 @@ public class transfer extends Fragment implements payeeItemAdapter.OnItemClickLi
             }
         });
 
-        final TextInputEditText recipient = mView.findViewById(R.id.recipient_field);
-        recipient.setOnFocusChangeListener(this);
-        final TextInputEditText first_name = mView.findViewById(R.id.first_name_field);
-        first_name.setOnFocusChangeListener(this);
-        final TextInputEditText last_name = mView.findViewById(R.id.last_name_field);
-        last_name.setOnFocusChangeListener(this);
-        final TextInputEditText value_field = mView.findViewById(R.id.value_field);
-        value_field.setOnFocusChangeListener(this);
 
+        recipient.setOnFocusChangeListener(this);
+        first_name.setOnFocusChangeListener(this);
+        last_name.setOnFocusChangeListener(this);
+        value.setOnFocusChangeListener(this);
+        EditText memo = mView.findViewById(R.id.memo_field);
+        if (detail_item != null && payer != null){
+            onPaymentAccountSelected(payer);
+            recipient.setText(detail_item.getTrans_to());
+            first_name.setText(detail_item.getTrans_to_first_name());
+            last_name.setText(detail_item.getTrans_to_last_name());
+            value.setText(String.valueOf(detail_item.getTrans_value()));
+            memo.setText(detail_item.getTrans_memo());
+
+        }
         return view;
     }
 
