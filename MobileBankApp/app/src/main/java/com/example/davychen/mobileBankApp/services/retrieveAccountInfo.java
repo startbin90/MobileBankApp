@@ -1,82 +1,48 @@
 package com.example.davychen.mobileBankApp.services;
 
-import android.util.Log;
+import android.os.AsyncTask;
 
 import com.example.davychen.mobileBankApp.Activity.account;
 import com.example.davychen.mobileBankApp.fragments.accounts_list;
-import com.example.davychen.mobileBankApp.items.account_item;
 import com.example.davychen.mobileBankApp.myIO;
+import com.example.davychen.mobileBankApp.returnMessage;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.lang.ref.WeakReference;
 
-public class retrieveAccountInfo implements Runnable {
-    private account parentAct;
-    private accounts_list frag;
-    int err;
-    private static String TAG = "retrieveAccountInfoService";
-    public retrieveAccountInfo(account act, accounts_list frag) {
-        this.parentAct = act;
-        this.frag = frag;
+public class retrieveAccountInfo extends AsyncTask<Void, Void ,Integer> {
+    private WeakReference<account> wrap;
+    private byte[] msg = null;
+    private String nin;
+    public retrieveAccountInfo(account act) {
+        this.wrap = new WeakReference<>(act);
+        this.nin = act.nin;
+    }
+
+    public retrieveAccountInfo(account act, byte[] msg) {
+        this.wrap = new WeakReference<>(act);
+        this.msg = msg;
     }
 
     @Override
-    public void run() {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-            outputStream.write(myIO.toBytes(parentAct.nin,18));
-            byte mes[] = outputStream.toByteArray( );
-            byte[] ret = myIO.toServer(10, mes);
-            err = myIO.bytesToInt(Arrays.copyOfRange(ret, 0, 4));
-            ret = Arrays.copyOfRange(ret, 4, ret.length);
-
-            if (err == 0){
-                ArrayList<account_item> temp = new ArrayList<>();
-                ArrayList<byte[]> divided = myIO.bytesArrayDivider(ret, 50, 10, 1, 18, 15, 100, 4);
-                if (divided.size() >= 7){
-                    this.parentAct.email = new String(divided.get(0)).trim();
-                    this.parentAct.nick_name = new String(divided.get(1)).trim();
-                    this.parentAct.sex = (char) divided.get(2)[0];
-                    this.parentAct.nin =  new String(divided.get(3)).trim();
-                    this.parentAct.cell = new String(divided.get(4)).trim();
-                    this.parentAct.addr = new String(divided.get(5)).trim();
-                    int count = myIO.bytesToInt(divided.get(6));
-
-                    if (count > 0 && divided.size() > 7){
-                        byte[] accountLists = divided.get(7);
-                        for (int i = 0; i < count; i++){
-                            String num = myIO.bytesToString(accountLists,  i * 32, 8);
-                            float balance = ByteBuffer.wrap(Arrays.copyOfRange(accountLists, 8 + i * 32, 12 + i * 32)).getFloat();
-                            String first_name = myIO.bytesToString(accountLists,  12 + i * 32, 10);
-                            String last_name = myIO.bytesToString(accountLists,  22 + i * 32, 10);
-                            temp.add(new account_item(num, balance, first_name, last_name));
-                        }
-
-                    }else{
-                        Log.i(TAG, "no linked account, which is impossible, error must occurred");
-                    }
-                    parentAct.itemLst.clear();
-                    parentAct.itemLst.addAll(temp);
-
-                }else{
-                    Log.e(TAG, "the size of returned Arraylist by bytesArrayDivider not correct");
-                }
-
-            }
-
-        } catch (IOException e) {
-            err  = 7;
+    protected void onPostExecute(Integer ret) {
+        new errDecode(ret, wrap.get()).run();
+        if (wrap.get().current_fragment instanceof accounts_list){
+            ((accounts_list)wrap.get().current_fragment).adapter.notifyDataSetChanged();
+            ((accounts_list)wrap.get().current_fragment).mRefreshLayout.setRefreshing(false);
         }
-        parentAct.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                frag.adapter.notifyDataSetChanged();
-                frag.mRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    protected Integer doInBackground(Void... voids) {
+        if (msg == null){
+            returnMessage ret = new GeneralRequestService(
+                    10, myIO.toBytes(this.nin, 18)).call();
+            if (ret.getRet() == 0){
+                msg = ret.getMessage();
+            }else{
+                return ret.getRet();
             }
-        });
-        this.parentAct.runOnUiThread(new errDecode(err, parentAct));
+        }
+        return new setAccountInfo(wrap.get(), msg).call();
     }
 }

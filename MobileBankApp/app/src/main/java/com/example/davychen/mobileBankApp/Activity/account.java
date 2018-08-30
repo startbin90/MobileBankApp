@@ -33,56 +33,52 @@ import com.example.davychen.mobileBankApp.fragments.transfer;
 import com.example.davychen.mobileBankApp.items.account_item;
 import com.example.davychen.mobileBankApp.items.transaction_detail_item;
 import com.example.davychen.mobileBankApp.myIO;
+import com.example.davychen.mobileBankApp.services.retrieveAccountInfo;
+import com.example.davychen.mobileBankApp.services.setAccountInfo;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Activity started after Log in.
+ * This activity is control of the navigation drawer layout
+ *
+ */
 public class account extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         accountItemAdapter.BottomSheetOnItemClickedListener {
-
+    /**
+     * attributes documents client's personal info
+     */
     public String email;
     public String nick_name;
     public char sex;
     public String nin;
     public String cell;
     public String addr;
+    /**
+     * client's accounts list
+     */
     public ArrayList<account_item> itemLst = new ArrayList<>();
     private static String TAG = "account_activity";
-    private Fragment current_fragment = null;
+    /**
+     * current fragment loaded
+     */
+    public Fragment current_fragment = null;
 
+    /**
+     * onCreate method gets the client's personal info and account list from intent object and
+     * sets related view control
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
         byte[] msg = getIntent().getByteArrayExtra("Message");
         if (msg != null) {
-            ArrayList<byte[]> ret = myIO.bytesArrayDivider(msg, 50, 10, 1, 18, 15, 100, 4);
-            if (ret.size() >= 7){
-                email = new String(ret.get(0)).trim();
-                nick_name = new String(ret.get(1)).trim();
-                sex = (char) ret.get(2)[0];
-                nin =  new String(ret.get(3)).trim();
-                cell = new String(ret.get(4)).trim();
-                addr = new String(ret.get(5)).trim();
-                int count = myIO.bytesToInt(ret.get(6));
-                if (count > 0){
-                    byte[] accountLists = ret.get(7);
-                    for (int i = 0; i < count; i++){
-                        String num = myIO.bytesToString(accountLists,  i * 32, 8);
-                        float balance = ByteBuffer.wrap(Arrays.copyOfRange(accountLists, 8 + i * 32, 12 + i * 32)).getFloat();
-                        String first_name = myIO.bytesToString(accountLists,  12 + i * 32, 10);
-                        String last_name = myIO.bytesToString(accountLists,  22 + i * 32, 10);
-                        itemLst.add(new account_item(num, balance, first_name, last_name));
-                    }
-                }else{
-                    Log.i(TAG, "no linked account, which is impossible, error must occurred");
-                }
-            }else{
-                Log.e(TAG, "the size of returned ArrayList by bytesArrayDivider not correct");
-            }
-
+            retrieveAccountInfo task= new retrieveAccountInfo(this, msg);
+            task.execute();
         }
 
 
@@ -93,8 +89,8 @@ public class account extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        //.setAction("Action", null).show();
             }
         });
 
@@ -104,6 +100,7 @@ public class account extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        //navigation view header onClickListener
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         View nav_header = navigationView.getHeaderView(0);

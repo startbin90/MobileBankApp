@@ -93,6 +93,9 @@ public class errDecode implements Runnable {
             case 22:
                 toast = "Fields not checked";
                 break;
+            case 23:
+                toast = "no linked accounts received, some error must occur";
+                break;
             default:
                 toast = "unknown error occurred: " + err;
                 break;

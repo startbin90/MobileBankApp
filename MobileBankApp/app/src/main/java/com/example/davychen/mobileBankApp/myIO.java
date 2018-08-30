@@ -53,6 +53,8 @@ public class myIO {
     // wrong nin and account number combination
     public static int SPECIFIED_ACCOUNT_NOT_FOUND = 21;
     public static int TRANSACTION_DETAIL_INSERTION_ERROR = 22;
+
+    public static int NO_LINKED_ACCOUNT = 23;
     static String TAG = "myIO";
     /**
      * convert int to byte[]

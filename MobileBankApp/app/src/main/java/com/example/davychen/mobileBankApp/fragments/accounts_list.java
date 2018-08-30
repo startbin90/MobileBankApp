@@ -1,6 +1,7 @@
 package com.example.davychen.mobileBankApp.fragments;
 
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,6 +20,7 @@ import com.example.davychen.mobileBankApp.Activity.account;
 import com.example.davychen.mobileBankApp.adapters.accountItemAdapter;
 import com.example.davychen.mobileBankApp.items.account_item;
 import com.example.davychen.mobileBankApp.services.retrieveAccountInfo;
+import com.example.davychen.mobileBankApp.services.setAccountInfo;
 
 import java.util.List;
 
@@ -68,19 +70,20 @@ public class accounts_list extends BottomSheetDialogFragment  {
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Runnable refresh = new retrieveAccountInfo(parentAct, accounts_list.this);
-                new Thread(refresh).start();
+                retrieveAccountInfo task= new retrieveAccountInfo(parentAct);
+                task.execute();
+
             }
         });
         return v;
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //you can set the title for your toolbar here for different fragments different titles
         getActivity().setTitle("Accounts");
-        Runnable refresh = new retrieveAccountInfo(parentAct, accounts_list.this);
-        new Thread(refresh).start();
+        retrieveAccountInfo task= new retrieveAccountInfo(parentAct);
+        task.execute();
     }
 }
