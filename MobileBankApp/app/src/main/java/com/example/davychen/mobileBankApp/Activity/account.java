@@ -56,7 +56,7 @@ public class account extends AppCompatActivity
     public char sex;
     public String nin;
     public String cell;
-    public String addr;
+    public String address;
     /**
      * client's accounts list
      */
@@ -121,6 +121,9 @@ public class account extends AppCompatActivity
         navGreeting.setText(text);
     }
 
+    /**
+     * show dialog when Back is pressed in this activity
+     */
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -180,26 +183,35 @@ public class account extends AppCompatActivity
 
     }
 
+    /**
+     * set current_fragment and commit changes
+     */
     public void displaySelectedScreen(int itemId) {
         //initializing the fragment object which is selected
         switch (itemId) {
             case R.id.accounts:
                 current_fragment = accounts_list.newInstance(this);
+                this.setTitle("Linked accounts list");
                 break;
             case R.id.transfer:
                 current_fragment = transfer.newInstance(this);
+                this.setTitle("Transfer");
                 break;
             case R.id.payeeMaintenance:
                 current_fragment = payeeMaintenance.newInstance(this);
+                this.setTitle("Payee maintenance");
                 break;
             case R.id.moreAccount:
                 current_fragment = accountAdditionFragment.newInstance(this);
+                this.setTitle("Link more accounts");
                 break;
             case R.id.nav_header:
                 current_fragment = personalProfileFragment.newInstance(this);
+                this.setTitle("Personal profile");
                 break;
             case R.id.settings:
                 current_fragment = settingFragment.newInstance(this);
+                this.setTitle("Settings");
                 break;
             case R.id.logout:
                 AlertDialog alertDialog = new AlertDialog.Builder(this).create();
@@ -249,11 +261,19 @@ public class account extends AppCompatActivity
         }
     }
 
+    /**
+     * account_detail activity will be called from account activity. User can navigate from account_
+     * detail activity to transfer fragment of account activity. account_detail will bring data back
+     * which will be received by this method.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        // called from redo button in transaction detail dialog from account detail activity
+        // brings transaction detail data back
         if (requestCode == 1 && resultCode == 10){
-
+            //search for this from_account in itemLst, making sure this account is in the account
+            // list
             String from_account = data.getStringExtra("from_account");
             account_item from = null;
             for (account_item each: itemLst){
@@ -268,6 +288,8 @@ public class account extends AppCompatActivity
             String memo = data.getStringExtra("memo");
 
             if (from != null){
+                // initialize transfer fragment and set the current_fragment and begin fragment
+                // transaction
                 current_fragment = transfer.newInstance(this,
                         new transaction_detail_item(to_account, to_first_name, to_last_name, value, memo),
                         from);
@@ -285,9 +307,11 @@ public class account extends AppCompatActivity
 
 
         }else if (requestCode == 1 && resultCode == 11){
-
+            // called from transfer button in account detail activity
+            // brings account number back
             String from_account = data.getStringExtra("from_account");
             account_item from = null;
+            // search for this account number in list
             for (account_item each: itemLst){
                 if (each.getAccount_num().equals(from_account)){
                     from = each;

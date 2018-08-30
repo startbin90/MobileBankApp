@@ -59,7 +59,7 @@ public class personalProfileFragment extends Fragment {
         nick_name.setText(parentAct.nick_name);
         email.setText(parentAct.email);
         cell.setText(parentAct.cell);
-        addr.setText(parentAct.addr);
+        addr.setText(parentAct.address);
 
         Button edit = view.findViewById(R.id.edit_button);
         edit.setOnClickListener(new View.OnClickListener() {
@@ -87,14 +87,14 @@ public class personalProfileFragment extends Fragment {
         final EditText addr = this.dialogView.findViewById(R.id.address_field);
         email.setText(parentAct.email);
         cell.setText(parentAct.cell);
-        addr.setText(parentAct.addr);
+        addr.setText(parentAct.address);
         this.submit = this.dialogView.findViewById(R.id.submit);
         this.submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!email.getText().toString().equals(parentAct.email) ||
                         !cell.getText().toString().equals(parentAct.cell) ||
-                        !addr.getText().toString().equals(parentAct.addr)){
+                        !addr.getText().toString().equals(parentAct.address)){
                     if (myIO.isValidEmail(email.getText().toString())){
 
                         profileModificationAsyncTask task = new profileModificationAsyncTask(
@@ -112,7 +112,7 @@ public class personalProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //you can set the title for your toolbar here for different fragments different titles
-        getActivity().setTitle("Personal Profile");
+        //getActivity().setTitle("Personal Profile");
     }
 
 
@@ -149,7 +149,7 @@ class profileModificationAsyncTask extends AsyncTask<Void, Void, returnMessage> 
             addr.setText(new_addr.getText().toString());
             context.parentAct.email = new_email.getText().toString();
             context.parentAct.cell = new_cell.getText().toString();
-            context.parentAct.addr = new_addr.getText().toString();
+            context.parentAct.address = new_addr.getText().toString();
             context.submit.setText(R.string.success);
             context.submit.setBackgroundResource(android.R.color.holo_green_light);
         }else{

@@ -99,7 +99,7 @@ public class payeeMaintenance extends Fragment implements payeeMaintenanceInterf
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getActivity().setTitle("Payees Maintenance");
+        //getActivity().setTitle("Payees Maintenance");
         new Thread(new getRecipients(payeeMaintenance.this)).start();
     }
 

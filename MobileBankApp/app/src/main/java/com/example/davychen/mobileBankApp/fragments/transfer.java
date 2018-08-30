@@ -209,7 +209,7 @@ public class transfer extends Fragment implements payeeItemAdapter.OnItemClickLi
         super.onViewCreated(view, savedInstanceState);
         //you can set the title for your toolbar here for different fragments different titles
         assert getActivity() != null: "getActivity failed, get null object instead";
-        getActivity().setTitle("Transfer");
+        //getActivity().setTitle("Transfer");
     }
 
     @Override
