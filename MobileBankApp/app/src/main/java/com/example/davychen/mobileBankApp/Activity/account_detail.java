@@ -28,7 +28,6 @@ import com.example.davychen.mobileBankApp.adapters.transDetailItemAdapter;
 import com.example.davychen.mobileBankApp.items.transaction_detail_item;
 import com.example.davychen.mobileBankApp.services.transDetailService;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,37 +36,66 @@ public class account_detail extends AppCompatActivity {
 
     public static String TAG = "account_datail";
 
+    /**
+     * start and end time set by first three tabs
+     */
     private long start_time, end_time;
+
+    /**
+     * start and end time set by customize tab
+     */
     private long cus_start_time, cus_end_time;
+
+    /**
+     * list used to store transaction detail item
+     */
     public ArrayList<transaction_detail_item> lst = new ArrayList<>();
 
+    /**
+     * account info
+     */
     public String account_num;
     public String balance;
     public String first_name, last_name;
 
-    //layouts
-    public RecyclerView reView;
+    /**
+     * layout attributes
+     */
+    public RecyclerView recyclerView;
     public transDetailItemAdapter adapter;
-    public LinearLayoutManager layoutManager;
     public SwipeRefreshLayout mRefreshLayout;
     public TabLayout tabLayout;
 
     public Runnable currentRunner;
+    /**
+     * indicator that customize time range set
+     */
     private boolean customizeSetSuccess = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_detail);
-        this.setTitle("Account Details");
+        this.setTitle("Account Detail");
 
-        //set account_num and balance
+        //get account info from intent
         Intent theIntent = getIntent();
         this.account_num = theIntent.getStringExtra("ACCOUNT_NUM");
         this.balance = theIntent.getStringExtra("BALANCE");
         this.first_name =  theIntent.getStringExtra("first_name");
         this.last_name =  theIntent.getStringExtra("last_name");
 
+        //set account info
+        TextView account_num_title = findViewById(R.id.account_num);
+        account_num_title.setText(this.account_num);
+        TextView balance_title = findViewById(R.id.balance);
+        balance_title.setText(this.balance);
+        TextView first_name_title = findViewById(R.id.first_name);
+        first_name_title.setText(this.first_name);
+        TextView last_name_title = findViewById(R.id.last_name);
+        last_name_title.setText(this.last_name);
+
+        // transfer button
         ImageButton transfer = findViewById(R.id.transfer);
         transfer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,16 +108,7 @@ public class account_detail extends AppCompatActivity {
             }
         });
 
-        TextView account_num_title = findViewById(R.id.account_num);
-        account_num_title.setText(this.account_num);
-        TextView balance_title = findViewById(R.id.balance);
-        balance_title.setText(this.balance);
-        TextView first_name_title = findViewById(R.id.first_name);
-        first_name_title.setText(this.first_name);
-        TextView last_name_title = findViewById(R.id.last_name);
-        last_name_title.setText(this.last_name);
-
-        this.reView = findViewById(R.id.account_detail_list);
+        this.recyclerView = findViewById(R.id.account_detail_list);
         this.mRefreshLayout = findViewById(R.id.account_detail_swipeRefreshLayout);
         mRefreshLayout.setColorSchemeResources(
                 R.color.colorPrimary
@@ -112,33 +131,36 @@ public class account_detail extends AppCompatActivity {
                 }
             }
         });
-        this.reView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        this.reView.setHasFixedSize(true);
-        this.layoutManager = new LinearLayoutManager(this);
-        this.reView.setLayoutManager(this.layoutManager);
+        this.recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        this.recyclerView.setHasFixedSize(true);
+        this.recyclerView.setLayoutManager(new LinearLayoutManager(this));
         this.adapter = new transDetailItemAdapter(lst, this);
-        this.reView.setAdapter(adapter);
+        this.recyclerView.setAdapter(adapter);
         this.tabLayout = findViewById(R.id.tabLayout);
         // pass activity to tab 3 in order to call the dialog
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 switch (tab.getPosition()){
+                    // One Month
                     case 0:
                         setDaysRangeFromToday(30);
                         mRefreshLayout.setRefreshing(true);
                         currentRunner = callTransDetailService();
                         break;
+                    // One week
                     case 1:
                         setDaysRangeFromToday(7);
                         mRefreshLayout.setRefreshing(true);
                         currentRunner = callTransDetailService();
                         break;
+                    // Today
                     case 2:
                         setDaysRangeFromToday(1);
                         mRefreshLayout.setRefreshing(true);
                         currentRunner = callTransDetailService();
                         break;
+                    // Customize
                     case 3:
                         AlertDialog dialog = dateSelectDialog(account_detail.this);
                         dialog.show();
@@ -148,8 +170,6 @@ public class account_detail extends AppCompatActivity {
                         break;
 
                 }
-
-
             }
 
             @Override
@@ -190,10 +210,12 @@ public class account_detail extends AppCompatActivity {
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
+                // if dismiss called when customized time range set successfully
                 if (customizeSetSuccess){
                     mRefreshLayout.setRefreshing(true);
                     currentRunner = callTransDetailService();
                 }else{
+                    // go to default tab when dismiss called without successfully set a time range
                     setManualTabSelect(2);
                 }
                 Log.i(TAG, "Date choosing dialog dismissed");
@@ -227,7 +249,6 @@ public class account_detail extends AppCompatActivity {
                         }else{
                             view.setChecked(true);
                             view.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-                            //Calendar cal = Calendar.getInstance();
                             try{
                                 switch (view.getId()){
                                     case R.id.select_from:
@@ -238,11 +259,7 @@ public class account_detail extends AppCompatActivity {
                                         to.setTag(null);
                                         break;
                                     case R.id.select_to:
-                                        //cal.add(Calendar.DATE, -4);
-                                        //datePicker.setMinDate(getStartOfDay((Calendar) view.getTag()).getTimeInMillis());
-                                        //from.setTag(null);
                                         view.setTextOn("");
-                                        //Log.i(TAG, new Date(datePicker.getMinDate()).toString()+ "here3");
                                         break;
                                 }
                             }catch (Exception e){
@@ -335,6 +352,10 @@ public class account_detail extends AppCompatActivity {
 
     }
 
+    /**
+     * Manually set tab position
+     * @param position the tab position wants to be set
+     */
     private void setManualTabSelect(int position){
         if (this.tabLayout != null){
             TabLayout.Tab tab = this.tabLayout.getTabAt(position);
@@ -352,12 +373,20 @@ public class account_detail extends AppCompatActivity {
         return service;
     }
 
+    /**
+     * get the current time as Calendar object
+     */
     public Calendar getCurrentTime(){
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
         return cal;
     }
 
+    /**
+     * set the end_time as the last moment of today and set the start_time as the start moment of
+     * 'days' before today
+     * @param days before today
+     */
     public void setDaysRangeFromToday(int days){
         Calendar end = getEndOfDay(null);
         long end_time = end.getTimeInMillis();
@@ -366,28 +395,47 @@ public class account_detail extends AppCompatActivity {
         setTimeRange(from_time, end_time);
     }
 
-
+    /**
+     * set the start_time and end_time attribute
+     */
     public void setTimeRange(long start_time, long end_time) {
         this.start_time = start_time;
         this.end_time = end_time;
     }
 
+    /**
+     * set start time
+     */
     public void setStart_time(long start_time){
         this.start_time = start_time;
     }
 
+    /**
+     * set end time
+     */
     public void setEnd_time(long end_time){
         this.end_time = end_time;
     }
 
+    /**
+     * start time getter
+     * @return start time
+     */
     public long getStart_time() {
         return start_time;
     }
 
+    /**
+     * end time getter
+     * @return end time
+     */
     public long getEnd_time() {
         return end_time;
     }
 
+    /**
+     * given a data return the last moment of that day
+     */
     public static Calendar getEndOfDay(Calendar cal) {
         if (cal == null)
             cal = Calendar.getInstance();
@@ -398,6 +446,9 @@ public class account_detail extends AppCompatActivity {
         return cal;
     }
 
+    /**
+     * given a data return the first moment of that day
+     */
     public static Calendar getStartOfDay(Calendar cal) {
         if (cal == null)
             cal = Calendar.getInstance();
@@ -406,15 +457,5 @@ public class account_detail extends AppCompatActivity {
         cal.set(Calendar.SECOND,      cal.getMinimum(Calendar.SECOND));
         cal.set(Calendar.MILLISECOND, cal.getMinimum(Calendar.MILLISECOND));
         return cal;
-    }
-
-    public static void main(String[] args) {
-        Date date = new Date(2018, 7, 20);
-        Calendar cal = Calendar.getInstance();
-        //cal.set(2018, 7, 20);
-        cal = getEndOfDay(cal);
-        long secs = cal.getTimeInMillis();
-        Timestamp stmp = new Timestamp(secs);
-        System.out.println(stmp);
     }
 }

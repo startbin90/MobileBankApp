@@ -30,9 +30,10 @@ import java.util.List;
  * also a subclass of Fragment
  */
 public class accounts_list extends BottomSheetDialogFragment  {
-
+    /**
+     * reference to itemLst in account activity
+     */
     List<account_item> list;
-    private RecyclerView recyclerView;
     account parentAct;
     public accountItemAdapter adapter;
     public SwipeRefreshLayout mRefreshLayout;
@@ -51,16 +52,17 @@ public class accounts_list extends BottomSheetDialogFragment  {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // Inflate the layout for this fragment and set recycler view, recycler list view adapter
+        // and refresh layout
         View v = inflater.inflate(R.layout.fragment_accounts_list, container, false);
-        this.recyclerView = v.findViewById(R.id.accounts_recyclerView);
+        RecyclerView recyclerView = v.findViewById(R.id.accounts_recyclerView);
 
-        this.recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
-        this.recyclerView.setHasFixedSize(true);
+        recyclerView.addItemDecoration(new DividerItemDecoration(parentAct, DividerItemDecoration.VERTICAL));
+        recyclerView.setHasFixedSize(true);
 
-        this.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         this.adapter = new accountItemAdapter(list, getActivity());
-        this.recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
 
         this.mRefreshLayout = v.findViewById(R.id.accounts_list_swipeRefreshLayout);
         mRefreshLayout.setColorSchemeResources(
@@ -73,7 +75,6 @@ public class accounts_list extends BottomSheetDialogFragment  {
             public void onRefresh() {
                 retrieveAccountInfo task= new retrieveAccountInfo(parentAct);
                 task.execute();
-
             }
         });
         return v;
@@ -82,8 +83,7 @@ public class accounts_list extends BottomSheetDialogFragment  {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //you can set the title for your toolbar here for different fragments different titles
-        //getActivity().setTitle("Accounts");
+        // retrieve account info when view is created
         retrieveAccountInfo task= new retrieveAccountInfo(parentAct);
         task.execute();
     }

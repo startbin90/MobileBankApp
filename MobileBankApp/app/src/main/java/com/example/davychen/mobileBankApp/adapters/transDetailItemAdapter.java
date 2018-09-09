@@ -45,7 +45,7 @@ public class transDetailItemAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public transDetailItemAdapter(List<transaction_detail_item> lst, final Context context) {
         this.lst = lst;
         this.context = context;
-        this.mRecyclerView = ((account_detail) context).reView;
+        this.mRecyclerView = ((account_detail) context).recyclerView;
         final LinearLayoutManager layoutManager = (LinearLayoutManager) this.mRecyclerView.getLayoutManager();
 
         this.mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {

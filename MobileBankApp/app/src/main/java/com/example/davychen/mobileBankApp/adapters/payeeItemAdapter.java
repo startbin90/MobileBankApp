@@ -24,13 +24,37 @@ import java.util.List;
 
 import static android.view.View.GONE;
 
+/**
+ * adapter used in recycler view to manage payee item
+ */
 public class payeeItemAdapter extends RecyclerView.Adapter<payeeItemAdapter.viewHolder> {
 
+    /**
+     * list used to hold payee_item
+     */
     private List<payee_item> lst;
+
+    /**
+     * context when adapter is called
+     */
     private Context context;
+
+    /**
+     * fragment that calls this adapter
+     */
     private Fragment frag;
+
+    /**
+     * callback listener
+     */
     private OnItemClickListener listener;
 
+    /**
+     * callback interface
+     * interface is implemented in account class
+     * This interface brings account item info back from adapter class to currently loaded fragment
+     * inside account class
+     */
     public interface OnItemClickListener {
         void onItemClick(payee_item item);
     }

@@ -35,7 +35,7 @@ import java.util.Arrays;
  */
 public class MainActivity extends AppCompatActivity {
 
-    public static String ip = "192.168.0.104";
+    public static String ip = "192.168.0.19";
     public Button logIn;
     static String TAG = "main_activity";
 

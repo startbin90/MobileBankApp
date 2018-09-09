@@ -14,11 +14,20 @@ import com.example.davychen.mobileBankApp.items.account_item;
 
 import java.util.List;
 
+/**
+ * adapter used in recycler view to manage account item
+ */
 public class accountItemAdapter extends RecyclerView.Adapter<accountItemAdapter.viewHolder> {
 
+    /**
+     * list of account_item
+     */
     private List<account_item> lst;
-    private Context context;
 
+    /**
+     * context when adapter is called
+     */
+    private Context context;
 
     public accountItemAdapter(List<account_item> lst, Context context) {
         this.lst = lst;
@@ -69,7 +78,8 @@ public class accountItemAdapter extends RecyclerView.Adapter<accountItemAdapter.
 
         @Override
         public void onClick(View v) {
-           /* lst.get(getAdapterPosition()).setAccount_num("changed");*/
+            // interface callback
+            // brings data back to class implemented it
             ((BottomSheetOnItemClickedListener)context).onItemClicked(
                     account_num.getText().toString(),
                     balance.getText().toString(),
@@ -79,6 +89,13 @@ public class accountItemAdapter extends RecyclerView.Adapter<accountItemAdapter.
         }
     }
 
+    /**
+     * callback interface
+     * interface is implemented in account class
+     * This interface brings account info including account number, account balance and first and
+     * last name of account owner back from above adapter class to currently loaded fragment inside
+     * account class
+     */
     public interface BottomSheetOnItemClickedListener{
         void onItemClicked(String account, String balance, String first_name, String last_name);
     }

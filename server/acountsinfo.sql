@@ -1,15 +1,16 @@
+\i accountSchema.ddl 
 insert into person values ('123456789098765432', 'jiajun', 'chen');
 insert into person values ('234567890987654321', 'davy', 'chen');
 
 insert into accounts values ('12345671', '123456789098765432',100,'000000');
 insert into accounts values ('12345672', '123456789098765432',100,'000000');
-insert into accounts values ('12345683', '123456789098765432',100,'000000');
-insert into accounts values ('12345684', '123456789098765432',100,'000000');
-insert into accounts values ('12345685', '123456789098765432',100,'000000');
-insert into accounts values ('12345686', '234567890987654321',100,'000000');
-insert into accounts values ('12345687', '234567890987654321',100,'000000');
-insert into accounts values ('12345688', '234567890987654321',100,'000000');
-insert into accounts values ('12345689', '234567890987654321',100,'000000');
+insert into accounts values ('12345673', '123456789098765432',100,'000000');
+insert into accounts values ('12345674', '123456789098765432',100,'000000');
+insert into accounts values ('12345675', '123456789098765432',100,'000000');
+insert into accounts values ('12345676', '234567890987654321',100,'000000');
+insert into accounts values ('12345677', '234567890987654321',100,'000000');
+insert into accounts values ('12345678', '234567890987654321',100,'000000');
+insert into accounts values ('12345679', '234567890987654321',100,'000000');
 insert into accounts values ('12345680', '234567890987654321',100,'000000');
 
 insert into linkedaccounts values ('12345671', '123456789098765432');
@@ -40,9 +41,6 @@ insert into transaction values (default, '2018-07-27 04:05:06','12345678','12345
 insert into transaction values (default, '2018-07-27 04:05:10','12345678','12345679','chen','+',10,30,'1','haha' );
 insert into transaction values (default, '2018-07-28 04:05:06','12345678','12345679','chen','-',10,20,'1','haha' );
 insert into transaction values (default, '2018-07-28 04:05:10','12345678','12345679','chen','+',10,30,'1','haha' );
-
-
-
 
 
 
