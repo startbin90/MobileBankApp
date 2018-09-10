@@ -4,8 +4,8 @@ It is a simple simulated mobile banking app on androidOS platform.
 - This simulated mobile banking app mocks several basic services provided by mobile banking app on the market, such as account register and login, transfer and payee maintenance.
 - The development process includes the development of the application on Android platform, server code and database code.
 ## DEMO
-- [Demo (PDF file)](MobileBankApp/Demo.pdf)
-- [Demo (Word file)](MobileBankApp/mobileBankingDemo.docx)
+- [Demo (PDF file)](Demo.pdf)
+- [Demo (Word file)](mobileBankingDemo.docx)
 ## Contents in repository
 - [Android App (Folder: MobileBankApp)](MobileBankApp)
   - [Activity files](MobileBankApp/app/src/main/java/com/example/davychen/mobileBankApp/)
@@ -20,8 +20,8 @@ It is a simple simulated mobile banking app on androidOS platform.
 - 这个模拟的手机银行软件模拟了生活中手机银行的基本功能，比如手机银行注册和登录，转账和收款人名册管理。
 - 开发过程包括了手机软件本体的开发，服务器的代码和建立数据库的代码。
 ## 演示
-- [演示 (PDF 文件)](MobileBankApp/Demo.pdf)
-- [演示 (Word 文件)](MobileBankApp/mobileBankingDemo.docx)
+- [演示 (PDF 文件)](Demo.pdf)
+- [演示 (Word 文件)](mobileBankingDemo.docx)
 ## Repository 内容介绍
 - [安卓软件本体代码 (所在文件夹: MobileBankApp)](MobileBankApp)
   - [活动(Activity)等 主要代码](MobileBankApp/app/src/main/java/com/example/davychen/mobileBankApp/)
