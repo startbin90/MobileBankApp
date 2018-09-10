@@ -9,11 +9,11 @@ It is a simple simulated mobile banking app on androidOS platform.
 ## Contents in repository
 - [Android App (Folder: MobileBankApp)](MobileBankApp)
   - [Activity files](MobileBankApp/app/src/main/java/com/example/davychen/mobileBankApp/)
-  - [Layout files](MobileBankApp/MobileBankApp/app/src/main/res/layout/)
-- [Server (Folder: server)](MobileBankApp/server/)
-  - [Source code](MobileBankApp/server/src/)
-  - [Database schema](MobileBankApp/server/accountSchema.ddl)
-- [Development manual (Chinese version)](MobileBankApp/简单模拟手机银行开发手册.docx)
+  - [Layout files](MobileBankApp/app/src/main/res/layout/)
+- [Server (Folder: server)](server/)
+  - [Source code](server/src/)
+  - [Database schema](server/accountSchema.ddl)
+- [Development manual (Chinese version)](简单模拟手机银行开发手册.docx)
 # MobileBankApp(中文版)
 这是一个基于安卓的简单模拟手机银行软件。
 - 制作这个模拟小软件的目的纯粹是出于对手机软件开发的兴趣同时也希望能把在大学里学到的知识应用到实践中。
@@ -25,9 +25,9 @@ It is a simple simulated mobile banking app on androidOS platform.
 ## Repository 内容介绍
 - [安卓软件本体代码 (所在文件夹: MobileBankApp)](MobileBankApp)
   - [活动(Activity)等 主要代码](MobileBankApp/app/src/main/java/com/example/davychen/mobileBankApp/)
-  - [布局(Layout) 代码](MobileBankApp/MobileBankApp/app/src/main/res/layout/)
-- [服务器 (文件夹: server)](MobileBankApp/server/)
-  - [服务器主要代码 Source code](MobileBankApp/server/src/)
-  - [数据库ddl文件 Database schema](MobileBankApp/server/accountSchema.ddl)
-- [简单模拟手机银行开发手册](MobileBankApp/简单模拟手机银行开发手册.docx)
+  - [布局(Layout) 代码](MobileBankApp/app/src/main/res/layout/)
+- [服务器 (文件夹: server)](server/)
+  - [服务器主要代码 Source code](server/src/)
+  - [数据库ddl文件 Database schema](server/accountSchema.ddl)
+- [简单模拟手机银行开发手册](简单模拟手机银行开发手册.docx)
 
